@@ -65,6 +65,7 @@ Example 3:
 - Code Quality and Style (30 points): Well-structured code with clear comments, a summary describing your algorithm, and good variable naming is expected.
 - Performance and Efficiency (10 points): Fast execution times will be rewarded, but solutions must first and foremost be correct and complete.		
 -	Performance	Points</br>	
-![image](https://github.com/VC-CodeLabs/word_ladder/assets/154607214/5db060ea-9b77-49e1-8cd7-c206d1095efd)
+![image](https://github.com/VC-CodeLabs/word_ladder/assets/154607214/a80c5043-3167-4f38-871d-248ea9dd5b97)
+
 
 
