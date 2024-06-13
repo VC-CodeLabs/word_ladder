@@ -68,4 +68,6 @@ Example 3:
 ![image](https://github.com/VC-CodeLabs/word_ladder/assets/154607214/a80c5043-3167-4f38-871d-248ea9dd5b97)
 
 
+**Due Date**</br>
+Please have the solution emailed to me or a PR submitted to the GitHub VC-CodeLabs/word_ladder repository by Sunday, June 23rd, by midnight.  
 
