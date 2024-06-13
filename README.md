@@ -7,7 +7,6 @@ Given two words, **beginWord** and **endWord**, and a dictionary **wordList**, r
 - The last word in the sequence is **endWord**.
 - Only one letter can be changed at a time.
 - Each transformed word must exist in the **wordList**.
-- The **beginWord** does not need to exist in the list.
 </br>
 
 **Constraints:**
@@ -18,6 +17,7 @@ Given two words, **beginWord** and **endWord**, and a dictionary **wordList**, r
 - wordList[i].length == beginWord.length
 - beginWord, endWord, and wordList[i] consist of lowercase English letters.
 - beginWord != endWord
+- The beginWord does not need to exist in the list.
 - All the words in wordList are unique.
 - Choose any programming language you like
 - You can use any external libraries that you feel will help you
