@@ -37,18 +37,25 @@ namespace CodeLabber
             //Sanity check
             if (beginWord.Length != endWord.Length)
             {
-                Console.WriteLine("ERROR: beginWord and endWord are of differing lengths.");
+                Console.WriteLine($"ERROR: {beginWord} and {endWord} are of differing lengths.");
                 return;
             }
 
-            //Toss that list into a set, including endWord
-            HashSet<string> wordSet = [.. wordList, endWord];
+            //Toss that list into a set
+            HashSet<string> wordSet = [.. wordList];
 
             //Start comparing words
             HashSet<string> validWords = [beginWord];
             string currentWord = beginWord;
             foreach (string word in wordList)
             {
+                //Sanity check
+                if (beginWord.Length != word.Length)
+                {
+                    Console.WriteLine($"ERROR: {beginWord} and {word} are of differing lengths.");
+                    return;
+                }
+
                 StringBuilder currentWordBuilder = new(currentWord);
                 for (int i = 0; i < currentWord.Length; i++)
                 {
