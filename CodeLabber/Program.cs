@@ -12,8 +12,32 @@ namespace CodeLabber
             string[] wordList = ["hot", "dot", "dog", "lot", "log", "cog"];
             //string[] wordList = ["hot", "log", "cog"];
 
+            //string beginWord = "";
+            //string endWord = "";
+            //string[] wordList = [];
+
+            //string beginWord = "lost";
+            //string endWord = "cost";
+            //string[] wordList = ["most", "fost", "cost", "host", "lost"];
+
+            //string beginWord = "start";
+            //string endWord = "endit";
+            //string[] wordList = ["stark", "stack", "smack", "black", "endit", "blink", "bline", "cline"];
+
+            DoWords(beginWord, endWord, wordList);
+        }
+
+        static void DoWords(string beginWord, string endWord, string[] wordList)
+        {
+            //Sanity check
+            if (beginWord.Length != endWord.Length)
+            {
+                Console.WriteLine("ERROR: beginWord and endWord are of differing lengths.");
+                return;
+            }
+
             //Toss that list into a set, including endWord
-            HashSet<string> wordSet = new(wordList) { endWord };
+            HashSet<string> wordSet = [.. wordList, endWord];
 
             //Quick function to determine valid words
             //Just inline it here so we can use wordSet w/o passing it
@@ -37,19 +61,24 @@ namespace CodeLabber
             }
 
             //Start comparing words
+            HashSet<string> validWords = [];
             string curWord = beginWord;
             foreach (var word in wordList)
             {
-                if (TryWord(curWord, word, out string retWord))
+                if (TryWord(curWord, endWord, out string retWord)
+                    || TryWord(curWord, word, out retWord))
                 {
+                    validWords.Add(retWord);
                     Console.WriteLine(retWord);
                     curWord = retWord;
+                    if (curWord == endWord)
+                        wordSet.Clear();
                 }
             }
 
-            Console.WriteLine("---");
-            Console.WriteLine(curWord);
-            _ = Console.ReadLine();
+            //Write the result
+            string[] results = [beginWord, .. validWords];
+            Console.WriteLine(string.Join(",", results));
         }
     }
 }
