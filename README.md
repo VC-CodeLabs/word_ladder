@@ -19,6 +19,7 @@ Given two words, **beginWord** and **endWord**, and a dictionary **wordList**, r
 - beginWord != endWord
 - The beginWord does not need to exist in the list.
 - All the words in wordList are unique.
+- Please provide variables for me to use to hold the beginWord, endWord, and wordList
 - Choose any programming language you like
 - You can use any external libraries that you feel will help you
 - Feel free to use AI to assist your development - the only exception to this is you *CANNOT USE AI TO WRITE A SOLUTION* for you 
