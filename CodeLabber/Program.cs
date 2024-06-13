@@ -1,30 +1,35 @@
-﻿using System.Text;
+﻿using Newtonsoft.Json;
+using System.Text;
 
 namespace CodeLabber
 {
     internal class Program
     {
+        static readonly Dictionary<string, HashSet<string>> solutions = [];
+
         static void Main(string[] args)
         {
             //Input vars! Set stuff here!
             string beginWord = "hit";
             string endWord = "cog";
             string[] wordList = ["hot", "dot", "dog", "lot", "log", "cog"];
-            //string[] wordList = ["hot", "log", "cog"];
-
-            //string beginWord = "";
-            //string endWord = "";
-            //string[] wordList = [];
-
-            //string beginWord = "lost";
-            //string endWord = "cost";
-            //string[] wordList = ["most", "fost", "cost", "host", "lost"];
-
-            //string beginWord = "start";
-            //string endWord = "endit";
-            //string[] wordList = ["stark", "stack", "smack", "black", "endit", "blink", "bline", "cline"];
-
             DoWords(beginWord, endWord, wordList);
+
+            //Test cases
+            //DoWords(beginWord, "derp", wordList);
+            //DoWords(beginWord, endWord, ["hot", "log", "cog"]);
+            //DoWords("", "", []);
+            //DoWords("lost", "cost", ["most", "fost", "cost", "host", "lost"]);
+            //DoWords("start", "endit", ["stark", "stack", "smack", "black", "endit", "blink", "bline", "cline"]);
+
+            //Print solutions (if any)
+            if (solutions.Count == 0) //LINQ barfs on empty collections, whoops
+                Console.WriteLine(JsonConvert.SerializeObject(solutions.Values));
+            else
+            {
+                int minLength = solutions.Select(s => s.Value.Count).Min();
+                Console.WriteLine(JsonConvert.SerializeObject(solutions.Values.Where(x => x.Count == minLength)));
+            }
         }
 
         static void DoWords(string beginWord, string endWord, string[] wordList)
@@ -39,46 +44,36 @@ namespace CodeLabber
             //Toss that list into a set, including endWord
             HashSet<string> wordSet = [.. wordList, endWord];
 
-            //Quick function to determine valid words
-            //Just inline it here so we can use wordSet w/o passing it
-            bool TryWord(string w1, string w2, out string retWord)
+            //Start comparing words
+            HashSet<string> validWords = [beginWord];
+            string currentWord = beginWord;
+            foreach (string word in wordList)
             {
-                StringBuilder tempWord = new(w1);
-                for (int i = 0; i < w1.Length; i++)
+                StringBuilder currentWordBuilder = new(currentWord);
+                for (int i = 0; i < currentWord.Length; i++)
                 {
-                    tempWord[i] = w2[i];
-                    if (wordSet.Remove(tempWord.ToString()))
+                    currentWordBuilder[i] = word[i];
+                    if (wordSet.Remove(currentWordBuilder.ToString()))
                     {
-                        retWord = tempWord.ToString();
-                        return true;
+                        currentWord = currentWordBuilder.ToString();
+                        validWords.Add(currentWord);
+                        break;
                     }
 
-                    tempWord[i] = w1[i]; //Reset for next
+                    currentWordBuilder[i] = currentWord[i]; //Reset for next
                 }
 
-                retWord = "";
-                return false;
-            }
-
-            //Start comparing words
-            HashSet<string> validWords = [];
-            string curWord = beginWord;
-            foreach (var word in wordList)
-            {
-                if (TryWord(curWord, endWord, out string retWord)
-                    || TryWord(curWord, word, out retWord))
+                //Bail here if we found our match
+                if (currentWord == endWord)
                 {
-                    validWords.Add(retWord);
-                    Console.WriteLine(retWord);
-                    curWord = retWord;
-                    if (curWord == endWord)
-                        wordSet.Clear();
+                    solutions.TryAdd(JsonConvert.SerializeObject(validWords), validWords);
+                    break;
                 }
             }
 
-            //Write the result
-            string[] results = [beginWord, .. validWords];
-            Console.WriteLine(string.Join(",", results));
+            //Again! Brute force a recursive "better solution"
+            foreach (string word in wordList)
+                DoWords(beginWord, endWord, [.. wordList.Where(x => x != word)]);
         }
     }
 }
