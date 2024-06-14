@@ -67,7 +67,11 @@ namespace CodeLabber
                     //Bail here if we found our match
                     if (currentWord == endWord)
                     {
-                        solutions.TryAdd(JsonConvert.SerializeObject(validWords), validWords);
+                        //But! Don't continue further if we've already "done" this solution tree
+                        if (!solutions.TryAdd(string.Join(',', validWords), validWords))
+                            return;
+
+                        //Otherwise, resume regularly scheduled programming after this break :P
                         break;
                     }
                 }
