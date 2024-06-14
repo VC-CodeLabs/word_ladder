@@ -1,5 +1,8 @@
 ﻿using Newtonsoft.Json;
+using System.Runtime.CompilerServices;
 using System.Text;
+
+[assembly: InternalsVisibleTo("CodeLabberTests")]
 
 namespace CodeLabber
 {
@@ -11,21 +14,11 @@ namespace CodeLabber
             string beginWord = "hit";
             string endWord = "cog";
             string[] wordList = ["hot", "dot", "dog", "lot", "log", "cog"];
+
             SolveFor(beginWord, endWord, wordList);
-
-            //Test cases
-            //SolveFor(beginWord, "derp", wordList); //endWord differs
-            //SolveFor(beginWord, endWord, ["hot", "log", "cog"]);
-            //SolveFor(beginWord, endWord, ["hot", "lg", "cog"]); //wordList differs
-            //SolveFor(beginWord, endWord, ["hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog"]);
-            //SolveFor(beginWord, endWord, ["hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog"]);
-            //SolveFor("", "", []);
-            //SolveFor("lost", "cost", ["most", "fost", "cost", "host", "lost"]);
-            //SolveFor("start", "endit", ["stark", "stack", "smack", "black", "endit", "blink", "bline", "cline"]);
-
         }
 
-        static void SolveFor(string beginWord, string endWord, string[] wordList)
+        internal static void SolveFor(string beginWord, string endWord, string[] wordList)
         {
             //Dictionary of solutions
             //Keys are string contents of the solution set to avoid duplicates
