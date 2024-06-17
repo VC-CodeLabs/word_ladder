@@ -8,6 +8,7 @@ namespace CodeLabberTests
         readonly string beginWord = "hit";
         readonly string endWord = "cog";
         readonly string[] wordList = ["hot", "dot", "dog", "lot", "log", "cog"];
+        readonly string output = @"[[""hit"",""hot"",""dot"",""dog"",""cog""],[""hit"",""hot"",""lot"",""log"",""cog""]]";
 
         readonly StringWriter consoleWriter = new StringWriter();
 
@@ -31,13 +32,20 @@ namespace CodeLabberTests
         public void Solution_Example1()
         {
             Program.SolveFor(beginWord, endWord, wordList);
-            AssertOutput(@"[[""hit"",""hot"",""lot"",""log"",""cog""],[""hit"",""hot"",""dot"",""dog"",""cog""]]");
+            AssertOutput(output);
         }
 
         [TestMethod]
         public void Solution_Example2()
         {
             Program.SolveFor("lost", "cost", ["most", "fost", "cost", "host", "lost"]);
+            AssertOutput(@"[[""lost"",""cost""]]");
+        }
+
+        [TestMethod]
+        public void Solution_Example2_NoExtraWords()
+        {
+            Program.SolveFor("lost", "cost", ["cost"]);
             AssertOutput(@"[[""lost"",""cost""]]");
         }
 
@@ -77,18 +85,28 @@ namespace CodeLabberTests
         }
 
         [TestMethod]
-        public void Solution_Example1_LongWordList()
+        public void Solution_Example1_LongWordList_Dupes()
         {
             Program.SolveFor(beginWord, endWord, ["hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog"]);
-            AssertOutput(@"[[""hit"",""hot"",""lot"",""log"",""cog""],[""hit"",""hot"",""dot"",""dog"",""cog""]]");
+            AssertOutput(output);
         }
 
         [TestMethod]
-        [Ignore] //This currently never completes
-        public void Solution_Example1_ExtremelyLongWordList()
+        public void Solution_Example1_LongerWordList_Dupes()
         {
             Program.SolveFor(beginWord, endWord, ["hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog", "hot", "dot", "dog", "lot", "log", "cog"]);
-            AssertOutput(@"[[""hit"",""hot"",""lot"",""log"",""cog""],[""hit"",""hot"",""dot"",""dog"",""cog""]]");
+            AssertOutput(output);
+        }
+
+        [TestMethod]
+        public void Solution_ExampleN_LongerWordList()
+        {
+            List<string> list = [];
+            for (int i = 0; i < 20; i++)
+                list.Add(i.ToString("D2"));
+
+            Program.SolveFor(list.First(), list.Last(), list);
+            AssertOutput(@"[[""00"",""09"",""19""],[""00"",""10"",""19""]]");
         }
     }
 }

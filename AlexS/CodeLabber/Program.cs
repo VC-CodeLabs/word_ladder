@@ -18,22 +18,26 @@ namespace CodeLabber
             SolveFor(beginWord, endWord, wordList);
         }
 
-        internal static void SolveFor(string beginWord, string endWord, string[] wordList)
+        internal static void SolveFor(string beginWord, string endWord, ICollection<string> wordList)
         {
             //Dictionary of solutions
             //Keys are string contents of the solution set to avoid duplicates
             //Values are simply the original solution set, to be pretty-printed in output
             Dictionary<string, HashSet<string>> solutions = [];
 
+            //HashSet of lists we've already processed
+            HashSet<string> processed = [];
+
             //Use an inline function to do some recursive work
-            void DoWords(string[] wordList)
+            void DoWords(ICollection<string> wordList)
             {
+                //Skip if we've already done this list
+                if (!processed.Add(string.Join(',', wordList)))
+                    return;
+
                 //Sanity check
                 if (beginWord.Length != endWord.Length)
-                {
-                    Console.WriteLine($"ERROR: {beginWord} and {endWord} are of differing lengths.");
-                    return;
-                }
+                    throw new ArgumentException($"{beginWord} and {endWord} are of differing lengths.");
 
                 //Toss that list into a set
                 HashSet<string> wordSet = [.. wordList];
@@ -45,11 +49,9 @@ namespace CodeLabber
                 {
                     //Sanity check
                     if (beginWord.Length != word.Length)
-                    {
-                        Console.WriteLine($"ERROR: {beginWord} and {word} are of differing lengths.");
-                        return;
-                    }
+                        throw new ArgumentException($"{beginWord} and {word} are of differing lengths.");
 
+                    //Start looking for valid words one character at a time
                     StringBuilder currentWordBuilder = new(currentWord);
                     for (int i = 0; i < currentWord.Length; i++)
                     {
@@ -82,7 +84,14 @@ namespace CodeLabber
             }
 
             //Kick it!
-            DoWords(wordList);
+            try
+            {
+                DoWords(wordList);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"ERROR: {ex.Message}");
+            }
 
             //Print solutions (if any)
             if (solutions.Count == 0) //LINQ barfs on empty collections, whoops
@@ -90,7 +99,13 @@ namespace CodeLabber
             else
             {
                 int minLength = solutions.Select(s => s.Value.Count).Min();
-                Console.WriteLine(JsonConvert.SerializeObject(solutions.Values.Where(x => x.Count == minLength)));
+                Console.WriteLine(
+                    JsonConvert.SerializeObject(
+                        solutions.Values
+                        .Where(x => x.Count == minLength)
+                        .OrderBy(x => string.Join(',', x))
+                    )
+                );
             }
         }
     }
