@@ -23,12 +23,20 @@ namespace CodeLabber
             //List of solution sets, to be pretty-printed in output
             List<ICollection<string>> solutions = [];
 
+            //Current min solution length - don't bother traversing paths longer than this
+            int minSolutionLength = int.MaxValue;
+
             //Use an inline function to do some recursive work
             void DoWords(string currentWord, ICollection<string> wordList, ICollection<string> path)
             {
+                //Ignore paths that will be longer than a known shorter solution
+                if (path.Count > minSolutionLength)
+                    return;
+
                 //If we've found what we're looking for, stop here!
                 if (currentWord == endWord)
                 {
+                    minSolutionLength = path.Count; //min by above check
                     solutions.Add(path);
                     return;
                 }
@@ -76,10 +84,7 @@ namespace CodeLabber
             if (solutions.Count == 0) //LINQ barfs on empty collections, whoops
                 Console.WriteLine(JsonConvert.SerializeObject(solutions));
             else
-            {
-                int minLength = solutions.Select(s => s.Count).Min();
-                Console.WriteLine(JsonConvert.SerializeObject(solutions.Where(s => s.Count == minLength)));
-            }
+                Console.WriteLine(JsonConvert.SerializeObject(solutions.Where(s => s.Count == minSolutionLength)));
         }
     }
 }

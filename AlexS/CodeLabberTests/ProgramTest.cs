@@ -99,7 +99,7 @@ namespace CodeLabberTests
         }
 
         [TestMethod]
-        public void Solution_ExampleN_LongerWordList()
+        public void Solution_ExampleN_LongWordList()
         {
             List<string> list = [];
             for (int i = 0; i < 20; i++)
@@ -107,6 +107,17 @@ namespace CodeLabberTests
 
             Program.SolveFor(list.First(), list.Last(), list);
             AssertOutput(@"[[""00"",""09"",""19""],[""00"",""10"",""19""]]");
+        }
+
+        [TestMethod]
+        public void Solution_ExampleN_LongerWordList()
+        {
+            List<string> list = [];
+            for (int i = 0; i < 200; i++)
+                list.Add(i.ToString("D3"));
+
+            Program.SolveFor(list.First(), list.Last(), list);
+            AssertOutput(@"[[""000"",""009"",""099"",""199""],[""000"",""009"",""109"",""199""],[""000"",""090"",""099"",""199""],[""000"",""090"",""190"",""199""],[""000"",""100"",""109"",""199""],[""000"",""100"",""190"",""199""]]");
         }
     }
 }
