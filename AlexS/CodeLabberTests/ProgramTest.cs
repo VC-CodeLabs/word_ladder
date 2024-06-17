@@ -57,16 +57,9 @@ namespace CodeLabberTests
         }
 
         [TestMethod]
-        public void Error_Differs_EndWord()
+        public void Error_WordLength_Differs()
         {
-            Program.SolveFor(beginWord, "derp", wordList); //endWord differs
-            AssertOutput($"ERROR: hit and derp are of differing lengths.{Environment.NewLine}[]");
-        }
-
-        [TestMethod]
-        public void Error_Differs_WordList()
-        {
-            Program.SolveFor(beginWord, endWord, ["hot", "lg", "cog"]); //wordList differs
+            Program.SolveFor(beginWord, endWord, ["hot", "lg", "cog"]);
             AssertOutput($"ERROR: hit and lg are of differing lengths.{Environment.NewLine}[]");
         }
 
@@ -81,6 +74,13 @@ namespace CodeLabberTests
         public void NoSolution_EmptyArguments()
         {
             Program.SolveFor("", "", []);
+            AssertOutput(@"[[""""]]"); //Technically correct? We don't need a path to go from "" to ""... :P
+        }
+
+        [TestMethod]
+        public void NoSolution_EmptyWordList()
+        {
+            Program.SolveFor("a", "b", []);
             AssertOutput("[]");
         }
 

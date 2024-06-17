@@ -20,73 +20,52 @@ namespace CodeLabber
 
         internal static void SolveFor(string beginWord, string endWord, ICollection<string> wordList)
         {
-            //Dictionary of solutions
-            //Keys are string contents of the solution set to avoid duplicates
-            //Values are simply the original solution set, to be pretty-printed in output
-            Dictionary<string, HashSet<string>> solutions = [];
-
-            //HashSet of lists we've already processed
-            HashSet<string> processed = [];
+            //List of solution sets, to be pretty-printed in output
+            List<ICollection<string>> solutions = [];
 
             //Use an inline function to do some recursive work
-            void DoWords(ICollection<string> wordList)
+            void DoWords(string currentWord, ICollection<string> wordList, ICollection<string> path)
             {
-                //Skip if we've already done this list
-                if (!processed.Add(string.Join(',', wordList)))
+                //If we've found what we're looking for, stop here!
+                if (currentWord == endWord)
+                {
+                    solutions.Add(path);
                     return;
+                }
 
-                //Sanity check
-                if (beginWord.Length != endWord.Length)
-                    throw new ArgumentException($"{beginWord} and {endWord} are of differing lengths.");
-
-                //Toss that list into a set
-                HashSet<string> wordSet = [.. wordList];
+                //Toss that list into a working set we can modify within loop
+                HashSet<string> workingSet = [.. wordList];
 
                 //Start comparing words
-                HashSet<string> validWords = [beginWord];
-                string currentWord = beginWord;
+                HashSet<string> validWords = [];
                 foreach (string word in wordList)
                 {
                     //Sanity check
-                    if (beginWord.Length != word.Length)
-                        throw new ArgumentException($"{beginWord} and {word} are of differing lengths.");
+                    if (currentWord.Length != word.Length)
+                        throw new ArgumentException($"{currentWord} and {word} are of differing lengths.");
 
                     //Start looking for valid words one character at a time
                     StringBuilder currentWordBuilder = new(currentWord);
                     for (int i = 0; i < currentWord.Length; i++)
                     {
                         currentWordBuilder[i] = word[i];
-                        if (wordSet.Remove(currentWordBuilder.ToString()))
-                        {
-                            currentWord = currentWordBuilder.ToString();
-                            validWords.Add(currentWord);
-                            break;
-                        }
+                        if (workingSet.Remove(currentWordBuilder.ToString()))
+                            validWords.Add(currentWordBuilder.ToString());
 
                         currentWordBuilder[i] = currentWord[i]; //Reset for next
                     }
-
-                    //Bail here if we found our match
-                    if (currentWord == endWord)
-                    {
-                        //But! Don't continue further if we've already "done" this solution tree
-                        if (!solutions.TryAdd(string.Join(',', validWords), validWords))
-                            return;
-
-                        //Otherwise, resume regularly scheduled programming after this break :P
-                        break;
-                    }
                 }
 
-                //Again! Brute force a recursive "better solution"
-                foreach (string word in wordList)
-                    DoWords([.. wordList.Where(x => x != word)]);
+                //Recurse our remaining workingSet for each possible validWord
+                //This will naturally exhaust itself if no (further) solution exists
+                foreach (string word in validWords)
+                    DoWords(word, workingSet, [.. path, word]);
             }
 
             //Kick it!
             try
             {
-                DoWords(wordList);
+                DoWords(beginWord, wordList, [beginWord]);
             }
             catch (ArgumentException ex)
             {
@@ -95,17 +74,11 @@ namespace CodeLabber
 
             //Print solutions (if any)
             if (solutions.Count == 0) //LINQ barfs on empty collections, whoops
-                Console.WriteLine(JsonConvert.SerializeObject(solutions.Values));
+                Console.WriteLine(JsonConvert.SerializeObject(solutions));
             else
             {
-                int minLength = solutions.Select(s => s.Value.Count).Min();
-                Console.WriteLine(
-                    JsonConvert.SerializeObject(
-                        solutions.Values
-                        .Where(x => x.Count == minLength)
-                        .OrderBy(x => string.Join(',', x))
-                    )
-                );
+                int minLength = solutions.Select(s => s.Count).Min();
+                Console.WriteLine(JsonConvert.SerializeObject(solutions.Where(s => s.Count == minLength)));
             }
         }
     }
