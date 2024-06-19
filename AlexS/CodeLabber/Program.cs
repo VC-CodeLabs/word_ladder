@@ -8,8 +8,12 @@ namespace CodeLabber
 {
     internal class Program
     {
+        static bool printStatistics = false;
+
         static void Main(string[] args)
         {
+            printStatistics = true; //Sure!
+
             //Input vars! Set stuff here!
             string beginWord = "hit";
             string endWord = "cog";
@@ -34,12 +38,20 @@ namespace CodeLabber
             //Current min solution length - don't bother traversing paths longer than this
             int minSolutionLength = int.MaxValue;
 
+            //Path counts for statistics
+            int stepsTraversed = 0;
+            int pathsIgnored = 0;
+
             //Use an inline function to do some recursive work
             void DoWords(string currentWord, ICollection<string> wordList, ICollection<string> path)
             {
                 //Ignore paths that will be longer than a known shorter solution
                 if (path.Count > minSolutionLength)
+                {
+                    pathsIgnored++;
                     return;
+                }
+                stepsTraversed++;
 
                 //If we've found what we're looking for, stop here!
                 if (currentWord == endWord)
@@ -89,10 +101,18 @@ namespace CodeLabber
             }
 
             //Print solutions (if any)
-            if (solutions.Count == 0) //LINQ barfs on empty collections, whoops
-                Console.WriteLine(JsonConvert.SerializeObject(solutions));
-            else
-                Console.WriteLine(JsonConvert.SerializeObject(solutions.Where(s => s.Count == minSolutionLength)));
+            Console.WriteLine(JsonConvert.SerializeObject(solutions.Where(s => s.Count == minSolutionLength)));
+
+            //Print some statistics?
+            if (printStatistics)
+            {
+                Console.WriteLine();
+                Console.WriteLine($"We returned {solutions.Count(s => s.Count == minSolutionLength)} optimal solutions.");
+                Console.WriteLine($"We threw away {solutions.Count(s => s.Count > minSolutionLength)} sub-optimal solutions.");
+                Console.WriteLine($"We traversed {stepsTraversed} steps.");
+                Console.WriteLine($"We ignored {pathsIgnored} paths longer than a known solution.");
+                Console.WriteLine();
+            }
         }
     }
 }
