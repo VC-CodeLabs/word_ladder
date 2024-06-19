@@ -23,6 +23,14 @@ namespace CodeLabber
             //List of solution sets, to be pretty-printed in output
             List<ICollection<string>> solutions = [];
 
+            //Dictionary of wordList, with similarity values to endWord
+            Dictionary<string, int> endWordSimilarity = [];
+            foreach (string word in wordList)
+                if (endWordSimilarity.TryAdd(word, 0))  //If we haven't already examined word...
+                    for (int i = 0; i < word.Length; i++)
+                        if (word[i] == endWord[i])      //Compare each character
+                            endWordSimilarity[word]++;  //On match, increment our similarity value
+
             //Current min solution length - don't bother traversing paths longer than this
             int minSolutionLength = int.MaxValue;
 
@@ -64,9 +72,9 @@ namespace CodeLabber
                     }
                 }
 
-                //Recurse our remaining workingSet for each possible validWord
+                //Recurse our remaining workingSet for each possible validWord, preferring most similar words
                 //This will naturally exhaust itself if no (further) solution exists
-                foreach (string word in validWords)
+                foreach (string word in validWords.OrderByDescending(w => endWordSimilarity[w]))
                     DoWords(word, workingSet, [.. path, word]);
             }
 
