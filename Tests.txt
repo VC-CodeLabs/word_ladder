@@ -1,0 +1,51 @@
+Test Case 1: Basic Transformation
+Begin Word: "hit"
+End Word: "cog"
+Word List: ["hot", "dot", "dog", "lot", "log", "cog"]
+Expected Output: [["hit", "hot", "dot", "dog", "cog"], ["hit", "hot", "lot", "log", "cog"]]
+
+
+Test Case 2: Single Letter Change
+Begin Word: "a"
+End Word: "c"
+Word List: ["z","z","z","z","z","z","z","z","z","c","z","z","z","z","z","z","z","z","z","z","b","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y"]
+Expected Output: [["a", "c"]]
+
+
+Test Case 3: No Possible Transformation
+Begin Word: "hit"
+End Word: "cog"
+Word List: ["hot", "dot", "dog", "lot", "log"]
+Expected Output: []
+
+
+Test Case 4: Very Basic Transformation
+Begin Word: "lame"
+End Word: "same"
+Word List: ["same", "came", "lame", "name"]
+Expected Output: [["lame", "same"]]
+
+
+Test Case 5: Transformation with Repeated Characters
+Begin Word: "aaaa"
+End Word: "bbbb"
+Word List: ["aaaa", "abbb", "aaab", "aabb", "bbbb"]
+Expected Output: [["aaaa", "aaab", "aabb", "abbb", "bbbb"]]
+
+
+Test Case 6: Multiple Valid Transformations
+Begin Word: "stone"
+End Word: "money"
+Word List:  ["stoke", "stony", "stome", "stomy", "stoey", "htoey", "htney", "hiney", "miney", "ttney", "toney", "itoey", "mtney", "soney", "store", "storm", "story", "monte", "monny", "monty", "money", "stane", "stine", "maney", "honey", "monde", "stnny", "mtone", "mtnne", "monne", "monee", "stnne", "mtnee"
+]
+Expected Output: 
+[
+["stone", "mtone", "mtnne", "monne", "monee", "money"], 
+["stone", "mtone", "mtnne", "monne", "monny", "money"], 
+["stone", "mtone", "mtnne", "mtnee", "monee", "money"], 
+["stone", "mtone", "mtnne", "mtnee", "mtney", "money"], 
+["stone", "stnne", "mtnne", "monne", "monee", "money"], 
+["stone", "stnne", "mtnne", "monne", "monny", "money"], 
+["stone", "stnne", "mtnne", "mtnee", "monee", "money"], 
+["stone", "stnne", "mtnne", "mtnee", "mtney", "money"] 
+]
