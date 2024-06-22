@@ -8,7 +8,7 @@ Expected Output: [["hit", "hot", "dot", "dog", "cog"], ["hit", "hot", "lot", "lo
 Test Case 2: Single Letter Change
 Begin Word: "a"
 End Word: "c"
-Word List: ["z","z","z","z","z","z","z","z","z","c","z","z","z","z","z","z","z","z","z","z","b","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y","y"]
+Word List: ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 Expected Output: [["a", "c"]]
 
 
