@@ -1,4 +1,4 @@
-Test Case 1: Basic Transformation
+Test Case 1: Basic Transformation Two Shortest Paths
 Begin Word: "hit"
 End Word: "cog"
 Word List: ["hot", "dot", "dog", "lot", "log", "cog"]
