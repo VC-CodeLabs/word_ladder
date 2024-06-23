@@ -124,7 +124,7 @@ func findWordLadders(beginWord string, endWord string, wordList []string) [][]st
 	var treeLadders [][]string
 	if !isOneLetterDiff(beginWord, endWord) {
 
-		treeLadders = buildNextCandidateSteps(beginWord, endWord, wordList)
+		treeLadders = buildLaddersFromStepPaths(beginWord, endWord, wordList)
 
 	} else {
 		treeLadders = [][]string{{beginWord, endWord}}
@@ -139,11 +139,11 @@ type Step struct {
 	nextSteps []Step
 }
 
-func buildNextCandidateSteps(beginWord string, endWord string, wordList []string) [][]string {
+func buildLaddersFromStepPaths(beginWord string, endWord string, wordList []string) [][]string {
 
 	wordTree := Step{beginWord, nil}
 
-	addNextSteps(&wordTree, endWord, wordList)
+	buildStepPaths(&wordTree, beginWord, endWord, wordList)
 
 	if VERBOSE {
 		fmt.Printf("wordTree: %v\n", wordTree)
@@ -151,7 +151,7 @@ func buildNextCandidateSteps(beginWord string, endWord string, wordList []string
 
 	treeLadders := make([][]string, 0)
 
-	getTreeLadders(&treeLadders, wordTree, endWord)
+	getLaddersFromWordTree(&treeLadders, wordTree, endWord)
 
 	if VERBOSE {
 		for i, ladder := range treeLadders {
@@ -162,16 +162,16 @@ func buildNextCandidateSteps(beginWord string, endWord string, wordList []string
 	return treeLadders
 }
 
-func getTreeLadders(ladders *[][]string, root Step, endWord string) {
+func getLaddersFromWordTree(ladders *[][]string, root Step, endWord string) {
 
 	for _, nextStep := range root.nextSteps {
 		ladder := []string{root.stepWord}
-		getLadder(ladders, ladder, nextStep, endWord)
+		getLaddersFromStepPaths(ladders, ladder, nextStep, endWord)
 	}
 
 }
 
-func getLadder(ladders *[][]string, ladder []string, step Step, endWord string) {
+func getLaddersFromStepPaths(ladders *[][]string, ladder []string, step Step, endWord string) {
 
 	if len(step.nextSteps) == 0 {
 		if step.stepWord == endWord {
@@ -190,12 +190,12 @@ func getLadder(ladders *[][]string, ladder []string, step Step, endWord string) 
 
 	ladder = append(ladder, step.stepWord)
 	for _, nextStep := range step.nextSteps {
-		getLadder(ladders, ladder, nextStep, endWord)
+		getLaddersFromStepPaths(ladders, ladder, nextStep, endWord)
 	}
 
 }
 
-func addNextSteps(step *Step, endWord string, wordList []string) {
+func buildStepPaths(step *Step, beginWord string, endWord string, wordList []string) {
 
 	if VERBOSE {
 		fmt.Printf("%v %v\n", step, wordList)
@@ -221,6 +221,10 @@ func addNextSteps(step *Step, endWord string, wordList []string) {
 	//
 	for i, word := range wordList {
 
+		if word == beginWord || word == endWord {
+			continue
+		}
+
 		// will the word from the list work as a next step from the current step
 		if isOneLetterDiff(step.stepWord, word) {
 
@@ -237,7 +241,7 @@ func addNextSteps(step *Step, endWord string, wordList []string) {
 			nextStepRemainingWords := append(append(make([]string, 0), wordList[:i]...), wordList[i+1:]...)
 
 			// find all the subsequent step paths
-			addNextSteps(&nextStep, endWord, nextStepRemainingWords)
+			buildStepPaths(&nextStep, beginWord, endWord, nextStepRemainingWords)
 
 			// add this next step to the prior parent step
 			if step.nextSteps == nil {
