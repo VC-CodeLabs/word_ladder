@@ -35,7 +35,7 @@ func main() {
 	fmt.Printf("beginWord: %s\n", beginWord)
 	fmt.Printf("  endWord: %s\n", endWord)
 	fmt.Printf(" wordList: %v\n", wordList)
-	/* wordLadder := */ buildWordLadder(beginWord, endWord, wordList)
+	buildWordLadder(beginWord, endWord, wordList)
 	// emitWordLadder(wordLadder, wordList)
 	fmt.Printf("\nladder(s): %v\n", treeLadders)
 }
@@ -67,17 +67,12 @@ func buildWordLadder(beginWord string, endWord string, wordList []string) [][]st
 		fmt.Printf("uniqueWords: %v]\n", uniqueWords)
 	}
 
-	/*
-		wordLadder := make([]string, 0)
-
-		wordLadder = append(wordLadder, beginWord)
-	*/
-
-	/* ladderSteps := */
 	buildLadderSteps(beginWordLC, endWordLC, cleansedWordListLC)
+
 	if VERBOSE {
 		fmt.Printf("\nladder(s): %v\n", treeLadders)
 	}
+
 	originalWordLadders := make([][]string, 0)
 	for _, ladder := range treeLadders {
 		restoredCaseWordLadder := make([]string, 0)
@@ -92,52 +87,20 @@ func buildWordLadder(beginWord string, endWord string, wordList []string) [][]st
 	}
 	treeLadders = originalWordLadders
 
-	/*
-		for _, stepWord := range ladderSteps {
-			wordLadder = append(wordLadder, uniqueWords[stepWord])
-		}
-
-		wordLadder = append(wordLadder, endWord)
-	*/
-
-	return treeLadders // wordLadder
+	return treeLadders
 }
 
 func buildLadderSteps(beginWord string, endWord string, wordList []string) [][]string {
 
-	// ladderSteps := make([]string, 0)
-
-	// shortestCandidateSteps := make([][]string, 0)
-
 	if !isOneLetterDiff(beginWord, endWord) {
 
-		/* candidateSteps := */
 		buildNextCandidateSteps(beginWord, endWord, wordList)
-
-		/*
-			if len(shortestCandidateSteps) == 0 {
-				shortestCandidateSteps = append(shortestCandidateSteps, candidateSteps)
-			} else {
-
-				if len(candidateSteps) == len(shortestCandidateSteps[0]) {
-					shortestCandidateSteps = append(shortestCandidateSteps, candidateSteps)
-				} else if len(candidateSteps) < len(shortestCandidateSteps[0]) {
-					shortestCandidateSteps = [][]string{candidateSteps}
-				}
-			}
-		*/
 
 	} else {
 		treeLadders = [][]string{{beginWord, endWord}}
 	}
 
-	/*
-		if len(shortestCandidateSteps) > 0 {
-			return shortestCandidateSteps[0]
-		}
-	*/
-
-	return treeLadders // ladderSteps
+	return treeLadders
 }
 
 type Step struct {
@@ -175,7 +138,7 @@ func buildNextCandidateSteps(beginWord string, endWord string, wordList []string
 		}
 	}
 
-	return treeLadders // []string{}
+	return treeLadders
 }
 
 func getTreeLadders(ladders *[][]string, root Step, endWord string) {
@@ -284,7 +247,7 @@ func isOneLetterDiff(word1 string, word2 string) bool {
 			totalDifferentLetters++
 
 			if totalDifferentLetters > 1 {
-				// no need to keep looking
+				// no need to keep looking- any amount more than one is enough
 				break
 			}
 		}
