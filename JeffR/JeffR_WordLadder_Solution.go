@@ -35,66 +35,96 @@ func main() {
 	fmt.Printf("beginWord: %s\n", beginWord)
 	fmt.Printf("  endWord: %s\n", endWord)
 	fmt.Printf(" wordList: %v\n", wordList)
-	buildWordLadder(beginWord, endWord, wordList)
+	treeLadders := sanitizeInputAndFindWordLadders(beginWord, endWord, wordList)
 	// emitWordLadder(wordLadder, wordList)
 	fmt.Printf("\nladder(s): %v\n", treeLadders)
 }
 
-func buildWordLadder(beginWord string, endWord string, wordList []string) [][]string {
+func sanitizeInputAndFindWordLadders(beginWord string, endWord string, wordList []string) [][]string {
+
+	if len(beginWord) != len(endWord) {
+		panic("begin/end length mismatch")
+	}
 
 	beginWordLC := strings.ToLower(beginWord)
 	endWordLC := strings.ToLower(endWord)
 
-	uniqueWords := make(map[string]string, 0)
-
-	uniqueWords[beginWordLC] = beginWord
-	uniqueWords[endWordLC] = endWord
-
 	cleansedWordListLC := make([]string, 0)
+	originalCase := make(map[string]string, 0)
 
-	for _, wordListItem := range wordList {
-		wordListItemLC := strings.ToLower(wordListItem)
-		if wordListItemLC != beginWordLC && wordListItemLC != endWordLC {
-			_, already := uniqueWords[wordListItemLC]
-			if !already {
-				uniqueWords[wordListItemLC] = wordListItem
-				cleansedWordListLC = append(cleansedWordListLC, wordListItemLC)
+	{
+		uniqueWords := make(map[string]string, 0)
+
+		uniqueWords[beginWordLC] = beginWord
+		uniqueWords[endWordLC] = endWord
+
+		for _, wordListItem := range wordList {
+
+			if len(wordListItem) != len(beginWord) {
+				panic(fmt.Sprintf("wordList item `%s` vs begin/end length mismatch", wordListItem))
+			}
+			wordListItemLC := strings.ToLower(wordListItem)
+			if wordListItemLC != beginWordLC && wordListItemLC != endWordLC {
+				_, already := uniqueWords[wordListItemLC]
+				if !already {
+					uniqueWords[wordListItemLC] = wordListItem
+					if wordListItemLC != wordListItem {
+						originalCase[wordListItemLC] = wordListItem
+					}
+					cleansedWordListLC = append(cleansedWordListLC, wordListItemLC)
+				} else {
+					if VERBOSE {
+						fmt.Printf("duplicate wordList item `%s`\n", wordListItem)
+					}
+				}
+			} else {
+				if VERBOSE {
+					fmt.Printf("wordList item `%s` matched beginWord or endWord\n", wordListItem)
+				}
 			}
 		}
-	}
 
-	if VERBOSE {
-		fmt.Printf("uniqueWords: %v]\n", uniqueWords)
-	}
-
-	buildLadderSteps(beginWordLC, endWordLC, cleansedWordListLC)
-
-	if VERBOSE {
-		fmt.Printf("\nladder(s): %v\n", treeLadders)
-	}
-
-	originalWordLadders := make([][]string, 0)
-	for _, ladder := range treeLadders {
-		restoredCaseWordLadder := make([]string, 0)
-		for _, rungWord := range ladder {
-			_, exists := uniqueWords[rungWord]
-			if !exists {
-				fmt.Printf("Unique word not found: %s", rungWord)
-			}
-			restoredCaseWordLadder = append(restoredCaseWordLadder, uniqueWords[rungWord])
+		if VERBOSE {
+			fmt.Printf("uniqueWords: %v\n", uniqueWords)
+			fmt.Printf("originalCase: %v\n", originalCase)
 		}
-		originalWordLadders = append(originalWordLadders, restoredCaseWordLadder)
+
+		uniqueWords = nil
 	}
-	treeLadders = originalWordLadders
+
+	treeLadders := findWordLadders(beginWordLC, endWordLC, cleansedWordListLC)
+
+	if len(originalCase) > 0 {
+		if VERBOSE {
+			fmt.Printf("\nLC ladder(s): %v\n", treeLadders)
+		}
+
+		originalWordLadders := make([][]string, 0)
+		for _, ladder := range treeLadders {
+			restoredCaseWordLadder := make([]string, 0)
+			for _, rungWord := range ladder {
+				_, exists := originalCase[rungWord]
+				if exists {
+					restoredCaseWordLadder = append(restoredCaseWordLadder, originalCase[rungWord])
+				} else {
+					restoredCaseWordLadder = append(restoredCaseWordLadder, rungWord)
+				}
+
+			}
+			originalWordLadders = append(originalWordLadders, restoredCaseWordLadder)
+		}
+		treeLadders = originalWordLadders
+	}
 
 	return treeLadders
 }
 
-func buildLadderSteps(beginWord string, endWord string, wordList []string) [][]string {
+func findWordLadders(beginWord string, endWord string, wordList []string) [][]string {
 
+	var treeLadders [][]string
 	if !isOneLetterDiff(beginWord, endWord) {
 
-		buildNextCandidateSteps(beginWord, endWord, wordList)
+		treeLadders = buildNextCandidateSteps(beginWord, endWord, wordList)
 
 	} else {
 		treeLadders = [][]string{{beginWord, endWord}}
@@ -109,32 +139,23 @@ type Step struct {
 	nextSteps []Step
 }
 
-var wordTree = Step{"", nil}
-
-var treeLadders [][]string
-
 func buildNextCandidateSteps(beginWord string, endWord string, wordList []string) [][]string {
 
-	if wordTree.stepWord == "" {
+	wordTree := Step{beginWord, nil}
 
-		// build the word tree
+	addNextSteps(&wordTree, endWord, wordList)
 
-		wordTree.stepWord = beginWord
+	if VERBOSE {
+		fmt.Printf("wordTree: %v\n", wordTree)
+	}
 
-		addNextSteps(&wordTree, endWord, wordList)
+	treeLadders := make([][]string, 0)
 
-		if VERBOSE {
-			fmt.Printf("wordTree: %v\n", wordTree)
-		}
+	getTreeLadders(&treeLadders, wordTree, endWord)
 
-		treeLadders = make([][]string, 0)
-
-		getTreeLadders(&treeLadders, wordTree, endWord)
-
-		if VERBOSE {
-			for i, ladder := range treeLadders {
-				fmt.Printf("Ladder[%d]: %v\n", i, ladder)
-			}
+	if VERBOSE {
+		for i, ladder := range treeLadders {
+			fmt.Printf("Ladder[%d]: %v\n", i, ladder)
 		}
 	}
 
