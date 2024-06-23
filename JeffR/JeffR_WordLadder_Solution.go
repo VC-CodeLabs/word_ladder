@@ -6,10 +6,10 @@ import (
 )
 
 /** sample from Alek's email */
-/** expected result: [[cig fig fog dog dug mug mut cut cot]]
-//var beginWord = "cig"
-//var endWord = "cot"
-//var wordList = []string{"cot", "dog", "cat", "cut", "mug", "fog", "fig", "mut", "dug"}
+/** expected result: [[cig fig fog dog dug mug mut cut cot]] */
+// var beginWord = "cig"
+// var endWord = "cot"
+// var wordList = []string{"cot", "dog", "cat", "cut", "mug", "fog", "fig", "mut", "dug"}
 
 /** README Example 1 */
 /** expected result: [[hit hot dot dog cog] [hit hot lot log cog]] */
@@ -35,17 +35,21 @@ func main() {
 	fmt.Printf("beginWord: %s\n", beginWord)
 	fmt.Printf("  endWord: %s\n", endWord)
 	fmt.Printf(" wordList: %v\n", wordList)
-	wordLadder := buildWordLadder(beginWord, endWord, wordList)
-	emitWordLadder(wordLadder, wordList)
+	/* wordLadder := */ buildWordLadder(beginWord, endWord, wordList)
+	// emitWordLadder(wordLadder, wordList)
 	fmt.Printf("\nladder(s): %v\n", treeLadders)
 }
 
-func buildWordLadder(beginWord string, endWord string, wordList []string) []string {
+func buildWordLadder(beginWord string, endWord string, wordList []string) [][]string {
 
 	beginWordLC := strings.ToLower(beginWord)
 	endWordLC := strings.ToLower(endWord)
 
 	uniqueWords := make(map[string]string, 0)
+
+	uniqueWords[beginWordLC] = beginWord
+	uniqueWords[endWordLC] = endWord
+
 	cleansedWordListLC := make([]string, 0)
 
 	for _, wordListItem := range wordList {
@@ -59,50 +63,81 @@ func buildWordLadder(beginWord string, endWord string, wordList []string) []stri
 		}
 	}
 
-	wordLadder := make([]string, 0)
-
-	wordLadder = append(wordLadder, beginWord)
-
-	ladderSteps := buildLadderSteps(beginWordLC, endWordLC, cleansedWordListLC)
-
-	for _, stepWord := range ladderSteps {
-		wordLadder = append(wordLadder, uniqueWords[stepWord])
+	if VERBOSE {
+		fmt.Printf("uniqueWords: %v]\n", uniqueWords)
 	}
 
-	wordLadder = append(wordLadder, endWord)
+	/*
+		wordLadder := make([]string, 0)
 
-	return wordLadder
+		wordLadder = append(wordLadder, beginWord)
+	*/
+
+	/* ladderSteps := */
+	buildLadderSteps(beginWordLC, endWordLC, cleansedWordListLC)
+	if VERBOSE {
+		fmt.Printf("\nladder(s): %v\n", treeLadders)
+	}
+	originalWordLadders := make([][]string, 0)
+	for _, ladder := range treeLadders {
+		restoredCaseWordLadder := make([]string, 0)
+		for _, rungWord := range ladder {
+			_, exists := uniqueWords[rungWord]
+			if !exists {
+				fmt.Printf("Unique word not found: %s", rungWord)
+			}
+			restoredCaseWordLadder = append(restoredCaseWordLadder, uniqueWords[rungWord])
+		}
+		originalWordLadders = append(originalWordLadders, restoredCaseWordLadder)
+	}
+	treeLadders = originalWordLadders
+
+	/*
+		for _, stepWord := range ladderSteps {
+			wordLadder = append(wordLadder, uniqueWords[stepWord])
+		}
+
+		wordLadder = append(wordLadder, endWord)
+	*/
+
+	return treeLadders // wordLadder
 }
 
-func buildLadderSteps(beginWord string, endWord string, wordList []string) []string {
+func buildLadderSteps(beginWord string, endWord string, wordList []string) [][]string {
 
-	ladderSteps := make([]string, 0)
+	// ladderSteps := make([]string, 0)
 
-	shortestCandidateSteps := make([][]string, 0)
+	// shortestCandidateSteps := make([][]string, 0)
 
 	if !isOneLetterDiff(beginWord, endWord) {
 
-		candidateSteps := buildNextCandidateSteps(beginWord, endWord, wordList)
+		/* candidateSteps := */
+		buildNextCandidateSteps(beginWord, endWord, wordList)
 
-		if len(shortestCandidateSteps) == 0 {
-			shortestCandidateSteps = append(shortestCandidateSteps, candidateSteps)
-		} else {
-
-			if len(candidateSteps) == len(shortestCandidateSteps[0]) {
+		/*
+			if len(shortestCandidateSteps) == 0 {
 				shortestCandidateSteps = append(shortestCandidateSteps, candidateSteps)
-			} else if len(candidateSteps) < len(shortestCandidateSteps[0]) {
-				shortestCandidateSteps = [][]string{candidateSteps}
+			} else {
+
+				if len(candidateSteps) == len(shortestCandidateSteps[0]) {
+					shortestCandidateSteps = append(shortestCandidateSteps, candidateSteps)
+				} else if len(candidateSteps) < len(shortestCandidateSteps[0]) {
+					shortestCandidateSteps = [][]string{candidateSteps}
+				}
 			}
-		}
+		*/
+
 	} else {
 		treeLadders = [][]string{{beginWord, endWord}}
 	}
 
-	if len(shortestCandidateSteps) > 0 {
-		return shortestCandidateSteps[0]
-	}
+	/*
+		if len(shortestCandidateSteps) > 0 {
+			return shortestCandidateSteps[0]
+		}
+	*/
 
-	return ladderSteps
+	return treeLadders // ladderSteps
 }
 
 type Step struct {
@@ -115,7 +150,7 @@ var wordTree = Step{"", nil}
 
 var treeLadders [][]string
 
-func buildNextCandidateSteps(beginWord string, endWord string, wordList []string) []string {
+func buildNextCandidateSteps(beginWord string, endWord string, wordList []string) [][]string {
 
 	if wordTree.stepWord == "" {
 
@@ -140,7 +175,7 @@ func buildNextCandidateSteps(beginWord string, endWord string, wordList []string
 		}
 	}
 
-	return []string{}
+	return treeLadders // []string{}
 }
 
 func getTreeLadders(ladders *[][]string, root Step, endWord string) {
@@ -182,27 +217,45 @@ func addNextSteps(step *Step, endWord string, wordList []string) {
 		fmt.Printf("%v %v\n", step, wordList)
 	}
 
+	// check to see if we can get directly to the end word from the current step
 	if isOneLetterDiff(step.stepWord, endWord) {
+		// last step to the end word
 		if VERBOSE {
 			fmt.Printf("%s => %s [END]\n", step.stepWord, endWord)
 		}
+		// build the last step
 		lastStep := Step{endWord, nil}
+		// the one-and-only next step is the last one
 		(*step).nextSteps = []Step{lastStep}
 		return
 	}
 
+	//
+	// we can't get directly to the end word,
+	// so find the words that will work as an interim step
+	// and fill out their paths of all possible subsequent steps
+	//
 	for i, word := range wordList {
 
+		// will the word from the list work as a next step from the current step
 		if isOneLetterDiff(step.stepWord, word) {
 
 			if VERBOSE {
 				fmt.Printf("%s => %s\n", step.stepWord, word)
 			}
 
+			// build our next step
 			nextStep := Step{word, nil}
 
-			addNextSteps(&nextStep, endWord, append(append(make([]string, 0), wordList[:i]...), wordList[i+1:]...))
+			// extract the next step word from the wordList
+			// to get remaining candidates for subsequent steps
+			// on this particular path
+			nextStepRemainingWords := append(append(make([]string, 0), wordList[:i]...), wordList[i+1:]...)
 
+			// find all the subsequent step paths
+			addNextSteps(&nextStep, endWord, nextStepRemainingWords)
+
+			// add this next step to the prior parent step
 			if step.nextSteps == nil {
 				(*step).nextSteps = []Step{nextStep}
 			} else {
@@ -217,6 +270,7 @@ func addNextSteps(step *Step, endWord string, wordList []string) {
 	}
 }
 
+// determines if only one letter is different between two words
 func isOneLetterDiff(word1 string, word2 string) bool {
 
 	if word1 == word2 {
@@ -230,6 +284,7 @@ func isOneLetterDiff(word1 string, word2 string) bool {
 			totalDifferentLetters++
 
 			if totalDifferentLetters > 1 {
+				// no need to keep looking
 				break
 			}
 		}
