@@ -32,15 +32,28 @@ var wordList = []string{"hot", "dot", "dog", "lot", "log", "cog"}
 const VERBOSE = false
 
 func main() {
-	fmt.Printf("beginWord: %s\n", beginWord)
-	fmt.Printf("  endWord: %s\n", endWord)
-	fmt.Printf(" wordList: %v\n", wordList)
-	treeLadders := sanitizeInputAndFindWordLadders(beginWord, endWord, wordList)
+	if VERBOSE {
+		fmt.Printf("beginWord: %s\n", beginWord)
+		fmt.Printf("  endWord: %s\n", endWord)
+		fmt.Printf(" wordList: %v\n", wordList)
+	}
+	shortestWordLadders := sanitizeInputAndFindShortestWordLadders(beginWord, endWord, wordList)
 	// emitWordLadder(wordLadder, wordList)
-	fmt.Printf("\nladder(s): %v\n", treeLadders)
+	if VERBOSE {
+		fmt.Printf("\nladder(s): %v\n", shortestWordLadders)
+	} else {
+		fmt.Printf("%v\n", shortestWordLadders)
+	}
 }
 
-func sanitizeInputAndFindWordLadders(beginWord string, endWord string, wordList []string) [][]string {
+// this method was conceived and mostly completed
+// *before* I'd fully read the spec
+// which theoretically makes this all obsolete
+//
+// converts all input to lowercase,
+// validates consistent word lengths,
+// ensures unique items in word list
+func sanitizeInputAndFindShortestWordLadders(beginWord string, endWord string, wordList []string) [][]string {
 
 	if len(beginWord) != len(endWord) {
 		panic("begin/end length mismatch")
@@ -57,6 +70,14 @@ func sanitizeInputAndFindWordLadders(beginWord string, endWord string, wordList 
 
 		uniqueWords[beginWordLC] = beginWord
 		uniqueWords[endWordLC] = endWord
+
+		if beginWordLC != beginWord {
+			originalCase[beginWordLC] = beginWord
+		}
+
+		if endWordLC != endWord {
+			originalCase[endWordLC] = endWord
+		}
 
 		for _, wordListItem := range wordList {
 
@@ -92,15 +113,19 @@ func sanitizeInputAndFindWordLadders(beginWord string, endWord string, wordList 
 		uniqueWords = nil
 	}
 
-	treeLadders := findWordLadders(beginWordLC, endWordLC, cleansedWordListLC)
+	shortestWordLadders := findShortestWordLadders(beginWordLC, endWordLC, cleansedWordListLC)
 
 	if len(originalCase) > 0 {
+
+		// if the original case of words was different,
+		// restore the original case for output
+
 		if VERBOSE {
-			fmt.Printf("\nLC ladder(s): %v\n", treeLadders)
+			fmt.Printf("\nLC ladder(s): %v\n", shortestWordLadders)
 		}
 
 		originalWordLadders := make([][]string, 0)
-		for _, ladder := range treeLadders {
+		for _, ladder := range shortestWordLadders {
 			restoredCaseWordLadder := make([]string, 0)
 			for _, rungWord := range ladder {
 				_, exists := originalCase[rungWord]
@@ -113,33 +138,40 @@ func sanitizeInputAndFindWordLadders(beginWord string, endWord string, wordList 
 			}
 			originalWordLadders = append(originalWordLadders, restoredCaseWordLadder)
 		}
-		treeLadders = originalWordLadders
+		shortestWordLadders = originalWordLadders
 	}
 
-	return treeLadders
+	return shortestWordLadders
 }
 
-func findWordLadders(beginWord string, endWord string, wordList []string) [][]string {
+// find the shortest word ladders
+func findShortestWordLadders(beginWord string, endWord string, wordList []string) [][]string {
 
-	var treeLadders [][]string
+	var shortestWordLadders [][]string
 	if !isOneLetterDiff(beginWord, endWord) {
-
-		treeLadders = buildLaddersFromStepPaths(beginWord, endWord, wordList)
+		// standard sitch- can't get directly from beginWord to endWord,
+		// see if we can get there by utilizing the word list
+		shortestWordLadders = buildShortestLaddersFromStepPaths(beginWord, endWord, wordList)
 
 	} else {
-		treeLadders = [][]string{{beginWord, endWord}}
+		// special case- no interim steps needed to get from beginWord to endWord
+		shortestWordLadders = [][]string{{beginWord, endWord}}
 	}
 
-	return treeLadders
+	return shortestWordLadders
 }
 
+// the Step structure is used to build out the possible paths
+// to determine if they can lead us to the endWord
 type Step struct {
 	stepWord string
 
 	nextSteps []Step
 }
 
-func buildLaddersFromStepPaths(beginWord string, endWord string, wordList []string) [][]string {
+// builds out the step paths,
+// then extracts the shortest ladders from those paths
+func buildShortestLaddersFromStepPaths(beginWord string, endWord string, wordList []string) [][]string {
 
 	wordTree := Step{beginWord, nil}
 
@@ -149,52 +181,63 @@ func buildLaddersFromStepPaths(beginWord string, endWord string, wordList []stri
 		fmt.Printf("wordTree: %v\n", wordTree)
 	}
 
-	treeLadders := make([][]string, 0)
+	shortestWordLadders := make([][]string, 0)
 
-	getLaddersFromWordTree(&treeLadders, wordTree, endWord)
+	getShortestLaddersFromWordTree(&shortestWordLadders, wordTree, endWord)
 
 	if VERBOSE {
-		for i, ladder := range treeLadders {
+		for i, ladder := range shortestWordLadders {
 			fmt.Printf("Ladder[%d]: %v\n", i, ladder)
 		}
 	}
 
-	return treeLadders
+	return shortestWordLadders
 }
 
-func getLaddersFromWordTree(ladders *[][]string, root Step, endWord string) {
+// initialize each ladder from the root, the build out the ladder variations from step paths
+func getShortestLaddersFromWordTree(shortestWordLadders *[][]string, root Step, endWord string) {
 
 	for _, nextStep := range root.nextSteps {
 		ladder := []string{root.stepWord}
-		getLaddersFromStepPaths(ladders, ladder, nextStep, endWord)
+		getShortestLaddersFromStepPaths(shortestWordLadders, ladder, nextStep, endWord)
 	}
 
 }
 
-func getLaddersFromStepPaths(ladders *[][]string, ladder []string, step Step, endWord string) {
+// recursive method builds out ladders from step paths;
+// if a path/ladder culminates in the end word,
+// and it is as short or shorter than any prior ladders, save it off
+func getShortestLaddersFromStepPaths(shortestWordLadders *[][]string, ladder []string, step Step, endWord string) {
 
 	if len(step.nextSteps) == 0 {
 		if step.stepWord == endWord {
 			ladder = append(ladder, endWord)
 
-			if len(*ladders) == 0 {
-				*ladders = append(*ladders, ladder)
-			} else if len(ladder) < len((*ladders)[0]) {
-				*ladders = [][]string{ladder}
-			} else if len(ladder) == len((*ladders)[0]) {
-				*ladders = append(*ladders, ladder)
+			if len(*shortestWordLadders) == 0 {
+				// first valid ladder
+				*shortestWordLadders = append(*shortestWordLadders, ladder)
+			} else if len(ladder) < len((*shortestWordLadders)[0]) {
+				// new ladder is shortest,
+				// replace all prior ladders
+				*shortestWordLadders = [][]string{ladder}
+			} else if len(ladder) == len((*shortestWordLadders)[0]) {
+				// new ladder is same length as prior shortest ladders,
+				// add it to the list
+				*shortestWordLadders = append(*shortestWordLadders, ladder)
 			}
 		}
 		return
 	}
 
+	// we didn't have a step to endWord, keep building out the ladder for this path
 	ladder = append(ladder, step.stepWord)
 	for _, nextStep := range step.nextSteps {
-		getLaddersFromStepPaths(ladders, ladder, nextStep, endWord)
+		getShortestLaddersFromStepPaths(shortestWordLadders, ladder, nextStep, endWord)
 	}
 
 }
 
+// recursive method builds out the different subsequent step paths from current step
 func buildStepPaths(step *Step, beginWord string, endWord string, wordList []string) {
 
 	if VERBOSE {
@@ -219,9 +262,11 @@ func buildStepPaths(step *Step, beginWord string, endWord string, wordList []str
 	// so find the words that will work as an interim step
 	// and fill out their paths of all possible subsequent steps
 	//
+	extended := 0
 	for i, word := range wordList {
 
 		if word == beginWord || word == endWord {
+			// NOTE endWord special case is handled first in this method above
 			continue
 		}
 
@@ -250,11 +295,18 @@ func buildStepPaths(step *Step, beginWord string, endWord string, wordList []str
 				(*step).nextSteps = append(step.nextSteps, nextStep)
 			}
 
+			extended++
+
 		} else {
 			if VERBOSE {
 				fmt.Printf("%s <> %s\n", step.stepWord, word)
 			}
 		}
+	}
+
+	if len(wordList) == 0 || len(step.nextSteps) == 0 || extended == 0 {
+		// no more steps available, we can't get from last word to end word- DEAD END
+		fmt.Printf("DEAD END: %v\n", step)
 	}
 }
 
