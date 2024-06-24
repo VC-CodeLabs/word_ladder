@@ -1,6 +1,6 @@
-# Code Labber!
+# Word Labber!
 
-Implementation for the "Code Ladder" challenge in C#.
+Implementation for the "Word Ladder" challenge in C#.
 
 ### Setup
 Requires .NET 8.0: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
