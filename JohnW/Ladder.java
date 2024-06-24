@@ -18,14 +18,20 @@ public class Ladder {
                "Gale", "Sale", "Sake", "Take", "Tale", "Tile", "File", "Fine", "Line", "Lime", "Time", "Tome", "Home", "Hope",
                "Rope", "Rope"));
 
-   static Words repeatedWords = new Words("Bark", "Rope",
+   static Words repeatedWordsNoPath = new Words("Bark", "Rope",
          List.of("Bark", "Dark", "Darn", "Barn", "Bare", "Bake", "Cake", "Cane", "Lane", "Lame", "Lamp", "Damp", "Dame", "Game",
                "Gale", "Sale", "Bark", "Bark", "Darn", "Cake", "Lame", "Lame", "Lame", "Lame", "Time", "Tome", "Home", "Hope",
                "Rope", "Rope"));
 
+   static Words multiPath = new Words("hit", "cog",
+         List.of("hot","dot","dog","lot","log","cog"));
+
    public static void main(String[] args) {
+      // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+      // ALEK - CHANGE CANDIDATE WORDS HERE
       // Change testWords to point to one of the static test cases
       Words testWords = Ladder.manyWords;
+      // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
       // If -v is passed on the command line, we'll print out all the intermediate steps
       boolean verbose = false;
@@ -35,23 +41,31 @@ public class Ladder {
       System.out.println("\nLooking for path from " + testWords.startWord + " -> " + testWords.endWord);
 
       // Walk all the paths to find the shortest
-      List<String> path = Ladder.walkWords(testWords.startWord, testWords.endWord, testWords.wordList, verbose);
+      List<WordPath> paths = Ladder.walkWords(testWords.startWord, testWords.endWord, testWords.wordList, verbose);
 
       // Cleverly display the results
-      if (path.isEmpty()) {
+      if (paths.isEmpty()) {
          System.out.println(
                "\nZoinks! The way is blocked!\nThere is no way to get from " + testWords.startWord + " to " + testWords.endWord +
                      ".");
       } else {
-         System.out.println("\nYahoo! Here is your path:");
-         StringBuilder buf = new StringBuilder();
-         for (int i = 0; i < path.size(); i++) {
-            buf.append(path.get(i));
-            if (i < path.size() - 1) {
-               buf.append(" -> ");
-            }
+         if (paths.size() > 1) {
+            System.out.println("\nYahoo! There are multiple paths:");
          }
-         System.out.println(buf);
+         else {
+            System.out.println("\nYahoo! Here is your path:");
+         }
+         for (WordPath wordPath : paths) {
+            List<String> path = wordPath.path;
+            StringBuilder buf = new StringBuilder();
+            for (int i = 0; i < path.size(); i++) {
+               buf.append(path.get(i));
+               if (i < path.size() - 1) {
+                  buf.append(" -> ");
+               }
+            }
+            System.out.println(buf);
+         }
       }
    }
 
@@ -83,29 +97,52 @@ public class Ladder {
     * @param wordList  List of valid words
     * @return List of words to make a path from start to end
     */
-   public static List<String> walkWords(String startWord, String endWord, List<String> wordList, boolean verbose) {
-      List<WordPath> result = new LinkedList<>();
+   public static List<WordPath> walkWords(String startWord, String endWord, List<String> wordList, boolean verbose) {
+      List<WordPath> candidatePaths = new LinkedList<>();
+      List<WordPath> resultPaths = new LinkedList<>();
 
       // prime our result list with the start word
       WordPath path = new WordPath(startWord, List.of(startWord));
-      result.add(path);
+      candidatePaths.add(path);
 
       // keep track of words we've seen
       Set<String> visitedWords = new HashSet<>();
 
+
       // Walk through the list of paths, adding words, until we get to the end word
-      while (!result.isEmpty()) {
+      while (!candidatePaths.isEmpty()) {
          // pop the current word and its path
-         WordPath currentEntry = result.remove(0);
+         WordPath currentEntry = candidatePaths.remove(0);
          // see if we're at the end
          if (currentEntry.word.equals(endWord)) {
-            return currentEntry.path;
+            // see if path is not longer than currently found paths
+            boolean addPath = false;
+            if (resultPaths.isEmpty()) {
+               addPath = true;
+            }
+            else {
+               for (WordPath wp : resultPaths) {
+                  if (currentEntry.path.size() <= wp.path.size()) {
+                     addPath = true;
+                     break;
+                  }
+               }
+            }
+            if (addPath) {
+               resultPaths.add(currentEntry);
+            }
+
+            // start over to see if there are more paths
+            candidatePaths.add(new WordPath(startWord, List.of(startWord)));
+            continue;
          }
 
          // Not at the end so find the next candidate word and add it to the current word's path
          for (String word : wordList) {
             if (isNextWord(currentEntry.word, word) && !visitedWords.contains(word)) {
-               visitedWords.add(word);
+               if (!word.equals(endWord)) {
+                  visitedWords.add(word);
+               }
 
                List<String> newPath = new ArrayList<>(currentEntry.path);
 
@@ -114,11 +151,11 @@ public class Ladder {
                if (verbose) {
                   System.out.println(wPath);
                }
-               result.add(wPath);
+               candidatePaths.add(wPath);
             }
          }
       }
-      return Collections.emptyList();
+      return resultPaths;
    }
 
    /**
