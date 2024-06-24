@@ -57,10 +57,10 @@ namespace CodeLabberTests
         }
 
         [TestMethod]
-        public void Error_WordLength_Differs()
+        public void NoSolution_Example1_WordLength_Differs()
         {
             Program.SolveFor(beginWord, endWord, ["hot", "lg", "cog"]);
-            AssertOutput($"ERROR: hit and lg are of differing lengths.{Environment.NewLine}[]");
+            AssertOutput("[]");
         }
 
         [TestMethod]

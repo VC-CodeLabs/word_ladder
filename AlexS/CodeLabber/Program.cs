@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 [assembly: InternalsVisibleTo("CodeLabberTests")]
 
@@ -65,10 +64,7 @@ namespace CodeLabber
             //Dictionary of wordList, with similarity values to endWord
             Dictionary<string, int> endWordSimilarity = [];
             foreach (string word in wordList)
-                if (endWordSimilarity.TryAdd(word, 0))  //If we haven't already examined word...
-                    for (int i = 0; i < word.Length; i++)
-                        if (word[i] == endWord[i])      //Compare each character
-                            endWordSimilarity[word]++;  //On match, increment our similarity value
+                endWordSimilarity.TryAdd(word, GetStringSimilarity(word, endWord));
 
             //Current min solution length - don't bother traversing paths longer than this
             int minSolutionLength = int.MaxValue;
@@ -100,24 +96,12 @@ namespace CodeLabber
                 HashSet<string> workingSet = [.. wordList];
 
                 //Start comparing words
-                HashSet<string> validWords = [];
+                List<string> validWords = [];
                 foreach (string word in wordList)
-                {
-                    //Sanity check
-                    if (currentWord.Length != word.Length)
-                        throw new ArgumentException($"{currentWord} and {word} are of differing lengths.");
-
-                    //Start looking for valid words one character at a time
-                    StringBuilder currentWordBuilder = new(currentWord);
-                    for (int i = 0; i < currentWord.Length; i++)
-                    {
-                        currentWordBuilder[i] = word[i];
-                        if (workingSet.Remove(currentWordBuilder.ToString()))
-                            validWords.Add(currentWordBuilder.ToString());
-
-                        currentWordBuilder[i] = currentWord[i]; //Reset for next
-                    }
-                }
+                    //If similarity is only one character off, transfer from workingSet to validWords
+                    //We can safely ignore equal words, as they won't get us any closer to endWord (which we test above)
+                    if (GetStringSimilarity(currentWord, word) == word.Length - 1 && workingSet.Remove(word))
+                        validWords.Add(word);
 
                 //Recurse our remaining workingSet for each possible validWord, preferring most similar words
                 //This will naturally exhaust itself if no (further) solution exists
@@ -126,14 +110,7 @@ namespace CodeLabber
             }
 
             //Kick it!
-            try
-            {
-                DoWords(beginWord, wordList, [beginWord]);
-            }
-            catch (ArgumentException ex)
-            {
-                Console.WriteLine($"ERROR: {ex.Message}");
-            }
+            DoWords(beginWord, wordList, [beginWord]);
 
             //Print solutions (if any)
             Console.WriteLine(JsonConvert.SerializeObject(solutions.Where(s => s.Count == minSolutionLength)));
@@ -148,6 +125,26 @@ namespace CodeLabber
                 Console.WriteLine($"We ignored {pathsIgnored} paths longer than a known solution.");
                 Console.WriteLine();
             }
+        }
+
+        /// <summary>
+        /// For two strings of equal length, return count of positions with equal characters.
+        /// </summary>
+        /// <param name="strA">The first string to compare.</param>
+        /// <param name="strB">The second string to compare.</param>
+        /// <returns>Count of positions with equal characters, or -1 if strings are of differing length.</returns>
+        private static int GetStringSimilarity(string strA, string strB)
+        {
+            //Sanity check
+            if (strA.Length != strB.Length)
+                return -1;
+
+            //Return count of indentical characters
+            int count = 0;
+            for (int i = 0; i < strA.Length; i++)
+                if (strA[i] == strB[i])
+                    count++;
+            return count;
         }
     }
 }
