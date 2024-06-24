@@ -10,22 +10,16 @@ Per specifications, inputs can be set in [CodeLabber/Program.cs](CodeLabber/Prog
 
 ### Build
 
-Build the [CodeLabber project](CodeLabber/) via Visual Studio.
+Build the [CodeLabber project](CodeLabber/) via Visual Studio. The "Release" configuration will [perform slightly faster](https://learn.microsoft.com/en-us/visualstudio/debugger/how-to-set-debug-and-release-configurations?view=vs-2022).
 
 Or, from this directory:
 ```pwsh
-dotnet build
+dotnet build --configuration Release
 ```
 
 ### Run
 
 After building, simply run:
 ```pwsh
-.\CodeLabber\bin\Debug\net8.0\CodeLabber.exe
-```
-
-Alternatively:
-```pwsh
-# This will also build the project (slower)
-dotnet run --project .\CodeLabber\
+.\CodeLabber\bin\Release\net8.0\CodeLabber.exe
 ```
