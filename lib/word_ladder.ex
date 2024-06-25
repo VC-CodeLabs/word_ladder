@@ -27,13 +27,13 @@ defmodule WordLadder do
           |> Enum.filter(&one_letter_difference?(List.last(path), &1))
           |> Enum.reject(&(&1 in visited_words))
 
-        Enum.reduce(neighbors, {paths, result}, fn neighbor, {neighbor_paths, neighor_result} ->
+        Enum.reduce(neighbors, {paths, result}, fn neighbor, {neighbor_paths, neighbor_result} ->
           new_path = path ++ [neighbor]
 
           if neighbor == end_word do
-            {neighbor_paths, [new_path | neighor_result]}
+            {neighbor_paths, [new_path | neighbor_result]}
           else
-            {[new_path | neighbor_paths], neighor_result}
+            {[new_path | neighbor_paths], neighbor_result}
           end
         end)
       end)
