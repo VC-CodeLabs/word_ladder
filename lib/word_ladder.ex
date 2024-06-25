@@ -7,6 +7,9 @@ defmodule WordLadder do
     end
   end
 
+  # Case when there are no neighbors.
+  defp bfs([], _word_list, _end_word, _visited_words, result), do: result
+
   defp bfs(paths, word_list, end_word, visited_words, result) do
     # Get the new word(s) - is the last value in each array in 'paths'.
     new_visited_words =
