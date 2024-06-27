@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34902.65
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeLabber", "CodeLabber\CodeLabber.csproj", "{1130410B-D7D6-4FCB-B950-9E85A21FC522}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeLabberTests", "CodeLabberTests\CodeLabberTests.csproj", "{71519F9F-DAAB-4D94-852F-1396B696D2B7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1130410B-D7D6-4FCB-B950-9E85A21FC522}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1130410B-D7D6-4FCB-B950-9E85A21FC522}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1130410B-D7D6-4FCB-B950-9E85A21FC522}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1130410B-D7D6-4FCB-B950-9E85A21FC522}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71519F9F-DAAB-4D94-852F-1396B696D2B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71519F9F-DAAB-4D94-852F-1396B696D2B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71519F9F-DAAB-4D94-852F-1396B696D2B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71519F9F-DAAB-4D94-852F-1396B696D2B7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0F5E3432-3BEA-4B0D-B41E-FA7D37C42CC2}
+	EndGlobalSection
+EndGlobal
