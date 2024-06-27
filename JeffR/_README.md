@@ -8,6 +8,9 @@ powershell: `$env:GOTMPDIR="$env:USERPROFILE\Projects\tmp"`
 The solution works by building out a tree of all possible word progression paths,
 deriving the ladder(s) from the shortest paths that culminate in the end word.
 
+As each path is built, only the words not already in that path are considered
+for extending the path.
+
 For example, with the following input:
 ```
 beginWord: hit
@@ -41,7 +44,7 @@ hit *
 
 # Command-line Parameters
 
-Command-line help is available with -h parameter.
+Command-line help is available with `-h` parameter.
 
 Command-line options:
 
@@ -55,17 +58,17 @@ e.g.
 Output: 
 `[[ "foo", "for", "far", "bar" ]]`
 
-NOTE for especially long wordLists or expectedResults, use -f for json input instead
+NOTE for especially long wordLists or expectedResults, use `-f` for json input instead
 
 ### -x="{expectedResult:ladder1:word1,word2[...wordN][;ladder2:word1,word2[...wordN]]}"
 
-Use -x="" to specify no ladders expected
+Use `-x=""` to specify no ladders expected
 
 quotes can be omitted if only a single ladder is spec'd
 
-NOTE expectedResult only needs to be spec'd if -c is also used
+NOTE expectedResult only needs to be spec'd if `-c` is also used
 
--x={anything} won't *ever* change the actual result; omit from json or set -x="" in case there's any doubt
+`-x={anything}` won't *ever* change the actual result; omit from json or set `-x=""` in case there's any doubt
 
 e.g.
 `go run JeffR_WordLadder_Solution.go -b=foo -e=fir -l=for,fio,fir -x="foo,for,fir;foo,fio,fir" -c`
@@ -76,7 +79,7 @@ Output:
 
 `*CHECKED*: ==`
 
-NOTE for especially long wordLists or expectedResults, use -f for json input instead
+NOTE for especially long wordLists or expectedResults, use `-f` for json input instead
 
 ### -c check expected vs actual result, report first issue found
 
@@ -104,7 +107,7 @@ See Output Modes section below
 
 ### -t enable threading support
 
-Use with large wordLists.
+Use with large wordLists. Disabled by default. *EXPERIMENTAL- proceed with caution!* 
 
 # Output Modes
 
