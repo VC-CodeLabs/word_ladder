@@ -644,7 +644,13 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 		// build the last step
 		lastStep := Step{endWord, nil}
 		// the one-and-only next step is the last one
+		if MULTI_THREADED {
+			(*stepLock).Lock()
+		}
 		(*step).nextSteps = []Step{lastStep}
+		if MULTI_THREADED {
+			(*stepLock).Unlock()
+		}
 
 		ladder = append(ladder, endWord)
 
