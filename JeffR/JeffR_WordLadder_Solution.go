@@ -124,6 +124,8 @@ const SINGLE_PASS = true
 
 const MULTI_THREADED = false
 
+const OUTPUT_MODE = OUTPUT_PRETTY_PRINT
+
 func main() {
 	if VERBOSE {
 		fmt.Printf("beginWord: %s\n", beginWord)
@@ -131,15 +133,7 @@ func main() {
 		fmt.Printf(" wordList: %v\n", wordList)
 	}
 	shortestWordLadders := sanitizeInputAndFindShortestWordLadders(beginWord, endWord, wordList)
-	emitWordLadders(shortestWordLadders, wordList)
-	animateWordLadders(shortestWordLadders, wordList)
-	/*
-		if VERBOSE {
-			fmt.Printf("\nladder(s): %v\n", shortestWordLadders)
-		} else {
-			fmt.Printf("%v\n", shortestWordLadders)
-		}
-	*/
+	outputWordLadders(shortestWordLadders, wordList)
 }
 
 // this method was conceived and mostly completed
@@ -651,6 +645,32 @@ func getLettersDiff(word1 string, word2 string) int {
 	return totalDifferentLetters
 }
 
+const (
+	OUTPUT_RAW = iota
+	OUTPUT_PRETTY_PRINT
+	OUTPUT_GRAPHICAL
+	OUTPUT_ANIMATED
+)
+
+func outputWordLadders(wordLadders [][]string, wordList []string) {
+	switch OUTPUT_MODE {
+	case OUTPUT_RAW:
+		if VERBOSE {
+			fmt.Printf("\nladder(s): %v\n", wordLadders)
+		} else {
+			fmt.Printf("%v\n", wordLadders)
+		}
+		// break
+	case OUTPUT_PRETTY_PRINT:
+		emitWordLadders(wordLadders, wordList)
+		// break
+	case OUTPUT_GRAPHICAL:
+		fallthrough
+	case OUTPUT_ANIMATED:
+		animateWordLadders(wordLadders, wordList)
+	}
+}
+
 func emitWordLadders(wordLadders [][]string, wordList []string) {
 	// hoping to have some fun "animating" the output
 
@@ -734,7 +754,7 @@ func animateWordLadders(wordLadders [][]string, wordList []string) {
 				fmt.Print("\u2550\u2550\u2563\n")
 			}
 			fmt.Printf("\t\u2551  ")
-			if i >= 0 {
+			if OUTPUT_ANIMATED == OUTPUT_MODE {
 				fmt.Print("\u001b[7m\u001b[5m")
 				for _, candidate := range wordList {
 					fmt.Printf("%s", candidate)
