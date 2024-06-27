@@ -2,7 +2,9 @@ package main
 
 import (
 	"cmp"
+	"flag"
 	"fmt"
+	"log"
 	"slices"
 	"strings"
 	"sync"
@@ -118,15 +120,74 @@ var README_EXAMPLE_3 = Inputs{
 	endWord:   "endit",
 	wordList:  []string{"stark", "stack", "smack", "black", "endit", "blink", "bline", "cline"}}
 
-const VERBOSE = false
+var VERBOSE = false
+
+var DEBUG = false
 
 const SINGLE_PASS = true
 
 const MULTI_THREADED = false
 
-const OUTPUT_MODE = OUTPUT_PRETTY_PRINT
+var OUTPUT_MODE = OUTPUT_PRETTY_PRINT
 
 func main() {
+
+	verboseParamPtr := flag.Bool("v", VERBOSE, "verbose output mode")
+	debugParamPtr := flag.Bool("d", DEBUG, "debug output mode")
+	beginWordParamPtr := flag.String("b", beginWord, "the beginWord")
+	endWordParamPtr := flag.String("e", endWord, "the endWord")
+	wordListAsString := //
+		strings.Replace(
+			strings.Replace(
+				strings.ReplaceAll(fmt.Sprintf("%v", wordList), " ", ","),
+				"[", "", 1),
+			"]", "", 1)
+	wordListParamPtr := flag.String("l", wordListAsString, "the wordList")
+	outputParamPtr := flag.Int("o", OUTPUT_MODE, "output mode # - 0: raw, 1: pretty print, 2: graphical, 3: animated")
+
+	flag.Parse()
+
+	if flag.NFlag() > 0 {
+		if verboseParamPtr != nil {
+			VERBOSE = *verboseParamPtr
+			if VERBOSE {
+				fmt.Println("VERBOSE mode enabled.")
+			}
+		}
+
+		if debugParamPtr != nil {
+			DEBUG = *debugParamPtr
+			if DEBUG {
+				log.Printf("DEBUG mode enabled.")
+			}
+		}
+
+		if beginWordParamPtr != nil {
+			beginWord = *beginWordParamPtr
+		}
+
+		if endWordParamPtr != nil {
+			endWord = *endWordParamPtr
+		}
+
+		if wordListParamPtr != nil {
+			wordListAsString = *wordListParamPtr
+			wordList = strings.Split(wordListAsString, ",")
+		}
+
+		if outputParamPtr != nil {
+			OUTPUT_MODE = *outputParamPtr
+			switch OUTPUT_MODE {
+			case OUTPUT_RAW:
+			case OUTPUT_PRETTY_PRINT:
+			case OUTPUT_GRAPHICAL:
+			case OUTPUT_ANIMATED:
+			default:
+				panic("-o=<0-3> out of range")
+			}
+		}
+	}
+
 	if VERBOSE {
 		fmt.Printf("beginWord: %s\n", beginWord)
 		fmt.Printf("  endWord: %s\n", endWord)
@@ -197,9 +258,9 @@ func sanitizeInputAndFindShortestWordLadders(beginWord string, endWord string, w
 			}
 		}
 
-		if VERBOSE {
-			fmt.Printf("uniqueWords: %v\n", uniqueWords)
-			fmt.Printf("originalCase: %v\n", originalCase)
+		if DEBUG {
+			log.Printf("uniqueWords: %v\n", uniqueWords)
+			log.Printf("originalCase: %v\n", originalCase)
 		}
 
 		uniqueWords = nil
@@ -212,8 +273,8 @@ func sanitizeInputAndFindShortestWordLadders(beginWord string, endWord string, w
 		// if the original case of words was different,
 		// restore the original case for output
 
-		if VERBOSE {
-			fmt.Printf("\nLC ladder(s): %v\n", shortestWordLadders)
+		if DEBUG {
+			log.Printf("\nLC ladder(s): %v\n", shortestWordLadders)
 		}
 
 		originalWordLadders := make([][]string, 0)
@@ -241,8 +302,8 @@ func findShortestWordLadders(beginWord string, endWord string, wordList []string
 
 	sortedWordList := append(make([]string, 0), wordList...)
 	slices.Sort(sortedWordList)
-	if VERBOSE {
-		fmt.Printf("sortedWordList: %v\n", sortedWordList)
+	if DEBUG {
+		log.Printf("sortedWordList: %v\n", sortedWordList)
 	}
 	_, endWordMatchFound := slices.BinarySearchFunc(sortedWordList, endWord, func(wordItem string, endWord string) int {
 		return strings.Compare(strings.ToLower(wordItem), strings.ToLower(endWord))
@@ -291,8 +352,8 @@ func buildShortestLaddersFromStepPaths(beginWord string, endWord string, wordLis
 			return cmp.Compare(wordDiff(a, beginWord, endWord), wordDiff(b, beginWord, endWord))
 		})
 
-		if VERBOSE {
-			fmt.Printf("Sorted wordList: %v\n", wordList)
+		if DEBUG {
+			log.Printf("weightedWordList: %v\n", wordList)
 		}
 
 		if MULTI_THREADED {
@@ -304,7 +365,9 @@ func buildShortestLaddersFromStepPaths(beginWord string, endWord string, wordLis
 		}
 
 		if VERBOSE {
-			fmt.Printf("wordTree: %v\n", wordTree)
+			fmt.Printf(" wordTree: %v\n", wordTree)
+		} else if DEBUG {
+			log.Printf("wordTree: %v\n", wordTree)
 		}
 
 	} else {
@@ -312,16 +375,19 @@ func buildShortestLaddersFromStepPaths(beginWord string, endWord string, wordLis
 		buildStepPaths(&wordTree, beginWord, endWord, wordList)
 
 		if VERBOSE {
-			fmt.Printf("wordTree: %v\n", wordTree)
+			fmt.Printf(" wordTree: %v\n", wordTree)
+		} else if DEBUG {
+			log.Printf("wordTree: %v\n", wordTree)
 		}
 
 		getShortestLaddersFromWordTree(&shortestWordLadders, wordTree, endWord)
 
 	}
 
-	if VERBOSE {
+	if DEBUG {
+		log.Printf("Found %d shortest ladder(s)\n", len(shortestWordLadders))
 		for i, ladder := range shortestWordLadders {
-			fmt.Printf("Ladder[%d]: %v\n", i, ladder)
+			log.Printf("Ladder[%d]: %v\n", i, ladder)
 		}
 	}
 
@@ -385,8 +451,8 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 
 	// NOTE ladder already includes step.stepWord
 
-	if VERBOSE {
-		fmt.Printf("%v %v\n", step, wordList)
+	if DEBUG {
+		log.Printf("step: %v wordList: %v\n", step, wordList)
 	}
 
 	if MULTI_THREADED {
@@ -405,8 +471,8 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 	// check to see if we can get directly to the end word from the current step
 	if isOneLetterDiff(step.stepWord, endWord) {
 		// last step to the end word
-		if VERBOSE {
-			fmt.Printf("%s => %s [END]\n", step.stepWord, endWord)
+		if DEBUG {
+			log.Printf("step %s => %s [END]\n", step.stepWord, endWord)
 		}
 		// build the last step
 		lastStep := Step{endWord, nil}
@@ -467,8 +533,8 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 		// will the word from the list work as a next step from the current step
 		if isOneLetterDiff(step.stepWord, word) {
 
-			if VERBOSE {
-				fmt.Printf("%s => %s\n", step.stepWord, word)
+			if DEBUG {
+				log.Printf("step %s => %s\n", step.stepWord, word)
 			}
 
 			// build our next step
@@ -511,16 +577,16 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 			extended++
 
 		} else {
-			if VERBOSE {
-				fmt.Printf("%s <> %s\n", step.stepWord, word)
+			if DEBUG {
+				log.Printf("step %s <> %s\n", step.stepWord, word)
 			}
 		}
 	}
 
 	if len(wordList) == 0 || len(step.nextSteps) == 0 || extended == 0 {
 		// no more steps available, we can't get from last word to end word- DEAD END
-		if VERBOSE {
-			fmt.Printf("DEAD END: %v\n", step)
+		if DEBUG {
+			log.Printf("DEAD END: %v\n", step)
 		}
 	}
 
@@ -532,15 +598,15 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 // recursive method builds out the different subsequent step paths from current step
 func buildStepPaths(step *Step, beginWord string, endWord string, wordList []string) {
 
-	if VERBOSE {
-		fmt.Printf("%v %v\n", step, wordList)
+	if DEBUG {
+		log.Printf("step: %v wordList: %v\n", step, wordList)
 	}
 
 	// check to see if we can get directly to the end word from the current step
 	if isOneLetterDiff(step.stepWord, endWord) {
 		// last step to the end word
-		if VERBOSE {
-			fmt.Printf("%s => %s [END]\n", step.stepWord, endWord)
+		if DEBUG {
+			log.Printf("step %s => %s [END]\n", step.stepWord, endWord)
 		}
 		// build the last step
 		lastStep := Step{endWord, nil}
@@ -565,8 +631,8 @@ func buildStepPaths(step *Step, beginWord string, endWord string, wordList []str
 		// will the word from the list work as a next step from the current step
 		if isOneLetterDiff(step.stepWord, word) {
 
-			if VERBOSE {
-				fmt.Printf("%s => %s\n", step.stepWord, word)
+			if DEBUG {
+				log.Printf("step %s => %s\n", step.stepWord, word)
 			}
 
 			// build our next step
@@ -590,16 +656,16 @@ func buildStepPaths(step *Step, beginWord string, endWord string, wordList []str
 			extended++
 
 		} else {
-			if VERBOSE {
-				fmt.Printf("%s <> %s\n", step.stepWord, word)
+			if DEBUG {
+				log.Printf("step %s <> %s\n", step.stepWord, word)
 			}
 		}
 	}
 
 	if len(wordList) == 0 || len(step.nextSteps) == 0 || extended == 0 {
 		// no more steps available, we can't get from last word to end word- DEAD END
-		if VERBOSE {
-			fmt.Printf("DEAD END: %v\n", step)
+		if DEBUG {
+			log.Printf("DEAD END: %v\n", step)
 		}
 	}
 }
@@ -685,6 +751,10 @@ func emitWordLadders(wordLadders [][]string, wordList []string) {
 	})
 
 	multiLadder := len(wordLadders) > 1
+
+	if VERBOSE {
+		fmt.Printf("ladder(s): ")
+	}
 
 	fmt.Printf("[")
 
