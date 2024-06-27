@@ -1,0 +1,10 @@
+{
+    "beginWord": "hit",
+    "endWord": "cog",
+    "wordList": [ "hot", "dot", "dog", "lot", "log", "cog" ],
+    "expectedResult": 
+        [
+            [ "hit", "hot", "dot", "dog", "cog" ],
+            [ "hit", "hot", "lot", "log", "cog" ]
+        ]
+}

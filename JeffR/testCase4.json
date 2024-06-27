@@ -1,0 +1,6 @@
+{
+    "beginWord": "lame",
+    "endWord": "same",
+    "wordList": [ "same", "came", "lame", "name" ],
+    "expectedResult": [[ "lame", "same" ]]
+}

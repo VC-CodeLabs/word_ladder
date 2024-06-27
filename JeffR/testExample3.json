@@ -1,0 +1,6 @@
+{
+    "beginWord": "start",
+	"endWord":   "endit",
+	"wordList":  [ "stark", "stack", "smack", "black", "endit", "blink", "bline", "cline" ],
+    "expectedResult": []
+}

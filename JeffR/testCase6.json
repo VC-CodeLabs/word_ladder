@@ -1,0 +1,22 @@
+{
+    "beginWord": "stone",
+    "endWord": "money",
+    "wordList": 
+      [ 
+        "stoke", "stony", "stome", "stomy", "stoey", "htoey", "htney", "hiney",
+        "miney", "ttney", "toney", "itoey", "mtney", "soney", "store", "storm",
+        "story", "monte", "monny", "monty", "money", "stane", "stine", "maney",
+        "honey", "monde", "stnny", "mtone", "mtnne", "monne", "monee", "stnne", "mtnee" 
+      ],
+    "expectedResult": 
+      [
+        ["stone", "mtone", "mtnne", "monne", "monee", "money"],
+        ["stone", "mtone", "mtnne", "monne", "monny", "money"],
+        ["stone", "mtone", "mtnne", "mtnee", "monee", "money"],
+        ["stone", "mtone", "mtnne", "mtnee", "mtney", "money"],
+        ["stone", "stnne", "mtnne", "monne", "monee", "money"],
+        ["stone", "stnne", "mtnne", "monne", "monny", "money"],
+        ["stone", "stnne", "mtnne", "mtnee", "monee", "money"],
+        ["stone", "stnne", "mtnne", "mtnee", "mtney", "money"]
+      ]
+}

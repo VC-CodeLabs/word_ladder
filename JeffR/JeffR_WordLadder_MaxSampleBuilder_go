@@ -1,0 +1,120 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"slices"
+)
+
+func main() {
+	buildMaxSample()
+}
+
+func buildMaxSample() {
+	WORD_LENGTH := 5
+	MAX_WORDLIST_ITEMS := 5000
+
+	BEGIN_WORD := "aaaaa"
+	END_WORD := "zzzzz"
+
+	wordList := make([]string, 0)
+
+	for i := 1; i < WORD_LENGTH; i++ {
+		word := ""
+		for j := 0; j < WORD_LENGTH; j++ {
+			if j < i {
+				word += "z"
+			} else {
+				word += "a"
+			}
+		}
+		if word != END_WORD {
+			wordList = append(wordList, word)
+		}
+	}
+
+	lastWord := BEGIN_WORD
+	for ch := 1; ch < 25; ch++ {
+		for i := 0; i < WORD_LENGTH; i++ {
+			word := ""
+			for j := 0; j < WORD_LENGTH; j++ {
+				if j <= i {
+					word += string('a' + ch)
+				} else {
+					word += string(lastWord[WORD_LENGTH-1])
+				}
+			}
+			wordList = append(wordList, word)
+			lastWord = word
+		}
+
+	}
+
+	/*
+		lastWord = BEGIN_WORD
+		for ch := 1; ch < 25; ch++ {
+			for i := 0; i < WORD_LENGTH; i++ {
+				word := ""
+				for j := 0; j < WORD_LENGTH; j++ {
+					if j >= WORD_LENGTH-i-1 {
+						word += string('a' + ch)
+					} else {
+						word += string(lastWord[j])
+					}
+				}
+				wordList = append(wordList, word)
+				lastWord = word
+			}
+
+		}
+	*/
+
+	lastWord = BEGIN_WORD
+	for i := 0; i < WORD_LENGTH; i++ {
+		for ch := 1; ch < 25; ch++ {
+			j := (WORD_LENGTH - i - 1)
+			word := lastWord[:j] + string('a'+ch) + lastWord[j+1:]
+			idx := slices.IndexFunc(wordList, func(w string) bool { return w == word })
+			if idx == -1 {
+				wordList = append(wordList, word)
+			}
+			lastWord = word
+		}
+
+	}
+
+	for len(wordList) < MAX_WORDLIST_ITEMS {
+		word := ""
+		for i := 0; i < WORD_LENGTH; i++ {
+			ch := rand.Intn(26)
+			word += string('a' + ch)
+		}
+		idx := slices.IndexFunc(wordList, func(w string) bool { return w == word })
+		if idx == -1 {
+			if word != BEGIN_WORD && word != END_WORD {
+				wordList = append(wordList, word)
+			}
+		}
+		for i := 0; i < WORD_LENGTH; i++ {
+			stepWord := word[:i] + BEGIN_WORD[i:]
+			idx := slices.IndexFunc(wordList, func(w string) bool { return w == stepWord })
+			if idx == -1 {
+				if stepWord != BEGIN_WORD && stepWord != END_WORD {
+					wordList = append(wordList, stepWord)
+				}
+			}
+
+		}
+	}
+
+	wordList = wordList[:5000]
+
+	if len(wordList) < MAX_WORDLIST_ITEMS {
+
+	}
+
+	for _, word := range wordList {
+		fmt.Printf("\"%s\",\n", word)
+	}
+	// fmt.Printf("%d\n%v", len(wordList), wordList)
+}
