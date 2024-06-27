@@ -1,0 +1,10 @@
+go build JeffR_WordLadder_Solution.go
+time ./JeffR_WordLadder_Solution.exe -f=testCase1.json
+time ./JeffR_WordLadder_Solution.exe -f=testCase2.json
+time ./JeffR_WordLadder_Solution.exe -f=testCase3.json
+time ./JeffR_WordLadder_Solution.exe -f=testCase4.json
+time ./JeffR_WordLadder_Solution.exe -f=testCase5.json
+time ./JeffR_WordLadder_Solution.exe -f=testCase6.json
+time ./JeffR_WordLadder_Solution.exe -f=testExample1.json
+time ./JeffR_WordLadder_Solution.exe -f=testExample2.json
+time ./JeffR_WordLadder_Solution.exe -f=testExample3.json

@@ -1,0 +1,9 @@
+time go run JeffR_WordLadder_Solution.go -f=testCase1.json
+time go run JeffR_WordLadder_Solution.go -f=testCase2.json
+time go run JeffR_WordLadder_Solution.go -f=testCase3.json
+time go run JeffR_WordLadder_Solution.go -f=testCase4.json
+time go run JeffR_WordLadder_Solution.go -f=testCase5.json
+time go run JeffR_WordLadder_Solution.go -f=testCase6.json
+time go run JeffR_WordLadder_Solution.go -f=testExample1.json
+time go run JeffR_WordLadder_Solution.go -f=testExample2.json
+time go run JeffR_WordLadder_Solution.go -f=testExample3.json
