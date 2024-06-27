@@ -98,6 +98,10 @@ Output:
 
 See Output Modes section below
 
+### -t enable threading support
+
+Use with large wordLists.
+
 # Output Modes
 
 - 0: Raw 
@@ -119,6 +123,6 @@ See Output Modes section below
 
 # Test Cases
 
-The testMaxWords.json provides a contrived example w/ generated words; most paths are dead ends.  On my system it generally takes around a minute and a half to complete processing of this test.
+The testMaxWords.json provides a contrived example w/ generated words; most paths are dead ends.  Even with optimizations, ~4.5 millions paths in the word tree are evaluated.  On my system it generally takes around a minute and a half to complete processing of this test. Enabling threading support drops this time to around a minute.
 
 all other test*.json were derived from provided examples or actual test cases 

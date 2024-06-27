@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -163,7 +164,7 @@ var DEBUG = false
 
 const SINGLE_PASS = true
 
-const MULTI_THREADED = false
+var MULTI_THREADED = false
 
 var OUTPUT_MODE = OUTPUT_PRETTY_PRINT
 
@@ -173,10 +174,12 @@ var CHECK_RESULT = false
 
 func main() {
 
+	// support numerous command-line parameters
 	verboseParamPtr := flag.Bool("v", VERBOSE, "verbose output mode")
 	debugParamPtr := flag.Bool("d", DEBUG, "debug output mode")
 	beginWordParamPtr := flag.String("b", beginWord, "the beginWord")
 	endWordParamPtr := flag.String("e", endWord, "the endWord")
+
 	wordListAsString := //
 		strings.Replace(
 			strings.Replace(
@@ -184,6 +187,7 @@ func main() {
 				"[", "", 1),
 			"]", "", 1)
 	wordListParamPtr := flag.String("l", wordListAsString, "the wordList")
+
 	expectedResultAsString := //
 		strings.Replace(
 			strings.Replace(
@@ -193,9 +197,12 @@ func main() {
 				"[", "", 2),
 			"]", "", 2)
 	expectedResultParamPtr := flag.String("x", expectedResultAsString, "the expectedResult")
+
 	inputFileParamPtr := flag.String("f", INPUT_FILE, "read input from json file (supersedes -b/-e/-l)")
 	outputParamPtr := flag.Int("o", OUTPUT_MODE, "output mode # - 0: raw, 1: pretty print, 2: graphical, 3: animated")
 	checkParamPtr := flag.Bool("c", CHECK_RESULT, "check results")
+
+	threadedParamPtr := flag.Bool("t", MULTI_THREADED, "multi-threaded support")
 
 	flag.Parse()
 
@@ -268,7 +275,13 @@ func main() {
 		if checkParamPtr != nil {
 			CHECK_RESULT = *checkParamPtr
 		}
+
+		if threadedParamPtr != nil {
+			MULTI_THREADED = *threadedParamPtr
+		}
 	}
+
+	// command-line flags processed, process the input
 
 	if VERBOSE {
 		fmt.Printf("beginWord: %s\n", beginWord)
@@ -286,6 +299,7 @@ func main() {
 
 }
 
+// read inputs beginWord, endWord, wordList and expectedResult from json
 func loadJsonInput(inputFile string) {
 	inputBytes, err := os.ReadFile(inputFile)
 
@@ -295,6 +309,8 @@ func loadJsonInput(inputFile string) {
 		os.Exit(1)
 	}
 
+	// a quirk(?) of the json lib requires uppercase-first-char field names;
+	// rather than update the "normal" Inputs struct, provide a json-specific version here
 	type JsonInputs struct {
 		BeginWord      string
 		EndWord        string
@@ -490,16 +506,31 @@ func buildShortestLaddersFromStepPaths(beginWord string, endWord string, wordLis
 
 		if MULTI_THREADED {
 			wg.Add(1)
-			go buildStepPathsAndLadders(&shortestWordLadders, ladder, &wordTree, beginWord, endWord, wordList)
+			var rootStepLock sync.Mutex
+			go buildStepPathsAndLadders(&shortestWordLadders, ladder, &wordTree, &rootStepLock, beginWord, endWord, wordList)
 			wg.Wait()
 		} else {
-			buildStepPathsAndLadders(&shortestWordLadders, ladder, &wordTree, beginWord, endWord, wordList)
+			buildStepPathsAndLadders(&shortestWordLadders, ladder, &wordTree, nil, beginWord, endWord, wordList)
 		}
 
 		if VERBOSE {
 			fmt.Printf(" wordTree: %v\n", wordTree)
 		} else if DEBUG {
 			log.Printf("wordTree: %v\n", wordTree)
+		}
+
+		if VERBOSE {
+			fmt.Printf("  path(s): %d\n", paths)
+		} else if DEBUG {
+			log.Printf("path(s): %d\n", paths)
+		}
+
+		if MULTI_THREADED {
+			if VERBOSE {
+				fmt.Printf("thread(s): %d\n", threads)
+			} else if DEBUG {
+				log.Printf("thread(s): %d\n", threads)
+			}
 		}
 
 	} else {
@@ -575,11 +606,14 @@ func getShortestLaddersFromStepPaths(shortestWordLadders *[][]string, ladder []s
 
 }
 
+var shortestLadderLength int32 = 0
 var paths int64 = 0
+var threads int64 = 0
+var threadsDone int64 = 0
 
 // recursive method builds out the different subsequent step paths from current step,
 // while also building ladders and tracking shortest of these
-func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, step *Step, beginWord string, endWord string, wordList []string) {
+func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, step *Step, stepLock *sync.Mutex, beginWord string, endWord string, wordList []string) {
 
 	// NOTE ladder already includes step.stepWord
 
@@ -595,6 +629,7 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 
 		if MULTI_THREADED {
 			wg.Done()
+			atomic.AddInt64(&threadsDone, 1)
 			mu.Unlock()
 		}
 		return
@@ -628,6 +663,7 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 
 		if MULTI_THREADED {
 			wg.Done()
+			atomic.AddInt64(&threadsDone, 1)
 			mu.Unlock()
 		}
 
@@ -640,6 +676,7 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 		// but that means we'd be longer than the shortest known ladder- bail out
 		if MULTI_THREADED {
 			wg.Done()
+			atomic.AddInt64(&threadsDone, 1)
 			mu.Unlock()
 		}
 		return
@@ -679,18 +716,26 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 			// on this particular path
 			nextStepRemainingWords := append(append(make([]string, 0), wordList[:i]...), wordList[i+1:]...)
 
+			var nextStepLock sync.Mutex
 			if MULTI_THREADED {
 				wg.Add(1)
+				threadsSoFar := atomic.AddInt64(&threads, 1)
+				threadsDoneSoFar := atomic.LoadInt64(&threadsDone)
+				if DEBUG {
+					if threadsSoFar%100000 == 0 {
+						log.Printf("threads so far: %d active: %d\n", threadsSoFar, threadsSoFar-threadsDoneSoFar)
+					}
+				}
 				// find all the subsequent step paths
-				go buildStepPathsAndLadders(shortestWordLadders, stepLadder, &nextStep, beginWord, endWord, nextStepRemainingWords)
+				go buildStepPathsAndLadders(shortestWordLadders, stepLadder, &nextStep, &nextStepLock, beginWord, endWord, nextStepRemainingWords)
 			} else {
 				// find all the subsequent step paths
-				buildStepPathsAndLadders(shortestWordLadders, stepLadder, &nextStep, beginWord, endWord, nextStepRemainingWords)
+				buildStepPathsAndLadders(shortestWordLadders, stepLadder, &nextStep, &nextStepLock, beginWord, endWord, nextStepRemainingWords)
 
 			}
 
 			if MULTI_THREADED {
-				mu.Lock()
+				(*stepLock).Lock()
 			}
 
 			// add this next step to the prior parent step
@@ -698,12 +743,26 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 				(*step).nextSteps = []Step{nextStep}
 			} else {
 				(*step).nextSteps = append(step.nextSteps, nextStep)
-				paths++
+				var pathsSoFar int64
+
+				if MULTI_THREADED {
+					pathsSoFar = atomic.AddInt64(&paths, 1)
+				} else {
+					paths++
+					pathsSoFar = paths
+				}
+
+				if DEBUG {
+					if pathsSoFar%100000 == 0 {
+						log.Printf("path(s) so far: %d\n", pathsSoFar)
+					}
+				}
+
 				// fmt.Printf("paths: %d\n", paths)
 			}
 
 			if MULTI_THREADED {
-				mu.Unlock()
+				(*stepLock).Unlock()
 			}
 
 			extended++
@@ -724,6 +783,7 @@ func buildStepPathsAndLadders(shortestWordLadders *[][]string, ladder []string, 
 
 	if MULTI_THREADED {
 		wg.Done()
+		atomic.AddInt64(&threadsDone, 1)
 	}
 }
 
@@ -783,6 +843,13 @@ func buildStepPaths(step *Step, beginWord string, endWord string, wordList []str
 				(*step).nextSteps = []Step{nextStep}
 			} else {
 				(*step).nextSteps = append(step.nextSteps, nextStep)
+				paths++
+
+				if DEBUG {
+					if paths%100000 == 0 {
+						log.Printf("path(s) so far: %d\n", paths)
+					}
+				}
 			}
 
 			extended++
