@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "name": "VC-CodeLabs",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "queue": "^7.0.0"
+  },
+  "scripts": {
+    "start": "node main.js"
+  }
+}
