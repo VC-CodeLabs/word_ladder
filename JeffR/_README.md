@@ -90,6 +90,10 @@ e.g.
 Output:
 `[[ "a", "c" ]]`
 
+### -s sanitize input
+
+Ensures input conforms to spec'd constraints; off by default
+
 ### -v enable verbose mode
 
 ### -d enable debug mode
