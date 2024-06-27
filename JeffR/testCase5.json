@@ -1,0 +1,6 @@
+{
+    "beginWord": "aaaa",
+    "endWord": "bbbb",
+    "wordList": [ "aaaa", "abbb", "aaab", "aabb", "bbbb" ],
+    "expectedResult": [[ "aaaa", "aaab", "aabb", "abbb", "bbbb" ]]
+}

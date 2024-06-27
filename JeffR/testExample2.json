@@ -1,0 +1,6 @@
+{
+    "beginWord": "lost",
+	"endWord":   "cost",
+	"wordList":  [ "most", "fost", "cost", "host", "lost" ],
+    "expectedResult": [[ "lost", "cost" ]]
+}
